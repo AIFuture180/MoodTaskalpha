@@ -225,11 +225,13 @@
         <div class="popup-content">
             <h4>Sudoku</h4>
             <p>Solve the puzzle by filling in the numbers!</p>
+            <select id="sudoku-difficulty" class="sound-select">
+                <option value="easy">Easy</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="hard">Hard</option>
+            </select>
             <div id="sudoku-grid"></div>
-            <div class="progress-container">
-                <div id="sudoku-progress" class="progress-bar"></div>
-            </div>
-            <p id="sudoku-timer">Time remaining: 90s</p>
+            <button id="check-solution" class="action-button" style="display: none;" onclick="checkSudokuSolution()">Check Solution</button>
             <button class="close-button" onclick="closePopup('sudoku')"><i class="fas fa-times"></i></button>
         </div>
     </div>
