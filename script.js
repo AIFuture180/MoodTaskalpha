@@ -108,15 +108,12 @@ function openPopup(tool) {
     if (tool === 'punching') startPunching();
     if (tool === 'stretch') startStretch();
     if (tool === 'doodle') startDoodle();
-    if (tool === 'stressball') startStressBall();
     if (tool === 'worry') startWorry();
     if (tool === 'color') startColorFocus();
     if (tool === 'sudoku') startSudoku();
     if (tool === 'moodflinger') startMoodFlinger();
     if (tool === 'asmr') startASMR();
     if (tool === 'gratitude') startGratitude();
-    if (tool === 'stressjar') startStressJar();
-    if (tool === 'moodquest') startMoodQuest();
     gtag('event', 'Tool Opened', { 'event_category': 'Tool', 'event_label': tool });
 }
 
@@ -131,7 +128,6 @@ function closePopup(tool) {
     if (tool === 'punching') clearInterval(window.punchingInterval);
     if (tool === 'stretch') clearInterval(window.stretchInterval);
     if (tool === 'doodle') clearInterval(window.doodleInterval);
-    if (tool === 'stressball') clearInterval(window.stressballInterval);
     if (tool === 'worry') {
         document.getElementById('worry-text').value = '';
         document.getElementById('paper-strips-container').innerHTML = '';
@@ -141,23 +137,14 @@ function closePopup(tool) {
         document.getElementById('sudoku-grid').innerHTML = '';
         document.getElementById('check-solution').style.display = 'none';
     }
-    if (tool === 'moodflinger') clearInterval(window.moodflingerInterval);
+    if (tool === 'moodflinger') {
+        window.moodflingerRunning = false;
+    }
     if (tool === 'asmr') {
         clearInterval(window.asmrInterval);
         if (currentSound) currentSound.pause();
     }
     if (tool === 'gratitude') document.getElementById('gratitude-text').value = '';
-    if (tool === 'stressjar') {
-        clearInterval(window.stressjarInterval);
-        document.getElementById('stressjar-text').value = '';
-        document.getElementById('stressjar-container').innerHTML = '';
-    }
-    if (tool === 'moodquest') {
-        clearInterval(window.moodquestInterval);
-        document.getElementById('quest-goal').value = '';
-        document.getElementById('quest-steps').innerHTML = '';
-        document.getElementById('quest-progress-map').innerHTML = '';
-    }
 }
 
 function updateProgress(elementId, total, current) {
@@ -359,34 +346,6 @@ function clearCanvas() {
 
 function clearDoodle() {
     clearCanvas(); // Alias for compatibility with index.html
-}
-
-function startStressBall() {
-    let time = 30;
-    let count = 0;
-    const ball = document.getElementById('stress-ball');
-    const timerElement = document.getElementById('stressball-timer');
-    ball.textContent = '0';
-    ball.style.transform = 'scale(1)';
-    updateProgress('stressball-progress', 30, 0);
-    ball.onclick = () => {
-        count++;
-        ball.textContent = count;
-        playSound(punchSound, 0.3);
-        ball.style.transform = 'scale(0.9)';
-        setTimeout(() => ball.style.transform = 'scale(1)', 100);
-    };
-    window.stressballInterval = setInterval(() => {
-        time--;
-        timerElement.textContent = `Time remaining: ${time}s`;
-        updateProgress('stressball-progress', 30, time);
-        if (time <= 0) {
-            clearInterval(window.stressballInterval);
-            playSound(successSound, 0.4);
-            ball.innerHTML = `Great job! ${count} squeezes!`;
-            setTimeout(() => closePopup('stressball'), 1500);
-        }
-    }, 1000);
 }
 
 function startWorry() {
@@ -594,62 +553,20 @@ function checkSudokuSolution() {
     }
 }
 
-function startMoodFlinger() {
-    let time = 60;
-    let score = 0;
-    const canvas = document.getElementById('moodflinger-canvas');
-    const ctx = canvas.getContext('2d');
-    const timerElement = document.getElementById('moodflinger-timer');
-    const scoreElement = document.getElementById('moodflinger-score');
-    let isDragging = false;
-    let startX, startY;
-    const target = { x: canvas.width / 2, y: 50, radius: 20 };
-    canvas.onmousedown = (e) => {
-        isDragging = true;
-        const rect = canvas.getBoundingClientRect();
-        startX = e.clientX - rect.left;
-        startY = e.clientY - rect.top;
-    };
-    canvas.onmouseup = (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        const rect = canvas.getBoundingClientRect();
-        const endX = e.clientX - rect.left;
-        const endY = e.clientY - rect.top;
-        const dist = Math.hypot(endX - target.x, endY - target.y);
-        if (dist < target.radius) {
-            score += 10;
-            scoreElement.textContent = `Score: ${score}`;
-            playSound(successSound, 0.4);
-        }
-    };
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#e74c3c';
-        ctx.fill();
-        if (isDragging) {
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(canvas.width / 2, canvas.height - 20);
-            ctx.strokeStyle = '#333';
-            ctx.stroke();
-        }
-        requestAnimationFrame(draw);
+function startGratitude() {
+    const gratitudeText = document.getElementById('gratitude-text');
+    gratitudeText.value = '';
+}
+
+function saveGratitude() {
+    const gratitudeText = document.getElementById('gratitude-text');
+    if (!gratitudeText.value.trim()) {
+        alert('Please enter something you’re grateful for.');
+        return;
     }
-    draw();
-    updateProgress('moodflinger-progress', 60, 0);
-    window.moodflingerInterval = setInterval(() => {
-        time--;
-        timerElement.textContent = `Time remaining: ${time}s`;
-        updateProgress('moodflinger-progress', 60, time);
-        if (time <= 0) {
-            clearInterval(window.moodflingerInterval);
-            playSound(successSound, 0.4);
-            setTimeout(() => closePopup('moodflinger'), 1500);
-        }
-    }, 1000);
+    playSound(successSound, 0.4);
+    alert('Gratitude saved!');
+    gratitudeText.value = '';
 }
 
 function startASMR() {
@@ -701,235 +618,245 @@ function startASMR() {
     }, 1000);
 }
 
-function startGratitude() {
-    let time = 30;
-    const gratitudeText = document.getElementById('gratitude-text');
-    const timerElement = document.getElementById('gratitude-timer');
-    gratitudeText.value = '';
-    updateProgress('gratitude-progress', 30, 0);
-    window.gratitudeInterval = setInterval(() => {
-        time--;
-        timerElement.textContent = `Time remaining: ${time}s`;
-        updateProgress('gratitude-progress', 30, time);
-        if (time <= 0) {
-            clearInterval(window.gratitudeInterval);
+function startMoodFlinger() {
+    const canvas = document.getElementById('moodflinger-canvas');
+    const ctx = canvas.getContext('2d');
+    const triesElement = document.getElementById('moodflinger-tries');
+    const scoreElement = document.getElementById('moodflinger-score');
+
+    let tries = 5;
+    let score = 0;
+    let isDragging = false;
+    let startX, startY;
+    let projectile = null;
+    const gravity = 0.5; // Pixels per frame squared
+    const angryEmojis = [];
+    const walls = [];
+    window.moodflingerRunning = true;
+
+    // Initialize Angry Emojis (😣)
+    for (let i = 0; i < 5; i++) {
+        angryEmojis.push({
+            x: 400 + Math.random() * 150, // Right side
+            y: 50 + Math.random() * 250,
+            size: 30,
+            velocityY: 0,
+            isFalling: false,
+            explodeTime: null,
+            active: true
+        });
+    }
+
+    // Initialize walls
+    for (let i = 0; i < 3; i++) {
+        walls.push({
+            x: 350 + i * 50,
+            y: 400,
+            width: 20,
+            height: 100 + Math.random() * 100, // Random height
+            velocityY: 0,
+            isFalling: false,
+            active: true
+        });
+    }
+
+    // Slingshot position
+    const slingshot = { x: 100, y: 350 };
+
+    canvas.onmousedown = (e) => {
+        if (tries <= 0 || !window.moodflingerRunning) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        // Check if clicking near slingshot
+        if (Math.hypot(mouseX - slingshot.x, mouseY - slingshot.y) < 50) {
+            isDragging = true;
+            startX = mouseX;
+            startY = mouseY;
+        }
+    };
+
+    canvas.onmousemove = (e) => {
+        if (isDragging) {
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+        }
+    };
+
+    canvas.onmouseup = (e) => {
+        if (!isDragging || tries <= 0 || !window.moodflingerRunning) return;
+        isDragging = false;
+        tries--;
+        triesElement.textContent = `Tries remaining: ${tries}`;
+        gtag('event', 'Mood Flinger Shot', { 'event_category': 'MoodFlinger', 'event_label': `Try ${6 - tries}` });
+
+        const rect = canvas.getBoundingClientRect();
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+
+        // Calculate velocity based on drag distance
+        const dx = slingshot.x - endX;
+        const dy = slingshot.y - endY;
+        const speed = Math.min(Math.hypot(dx, dy) / 5, 20); // Cap speed
+        projectile = {
+            x: slingshot.x,
+            y: slingshot.y,
+            velocityX: dx / 10 * speed / 10,
+            velocityY: dy / 10 * speed / 10,
+            size: 30,
+            active: true
+        };
+        playSound(punchSound, 0.3);
+    };
+
+    function detectCollision(obj1, obj2) {
+        if (!obj1.active || !obj2.active) return false;
+        const dx = obj1.x - obj2.x;
+        const dy = obj1.y - obj2.y;
+        const distance = Math.hypot(dx, dy);
+        return distance < (obj1.size + obj2.size) / 2;
+    }
+
+    function detectWallCollision(obj, wall) {
+        if (!obj.active || !wall.active) return false;
+        return (
+            obj.x + obj.size / 2 > wall.x &&
+            obj.x - obj.size / 2 < wall.x + wall.width &&
+            obj.y + obj.size / 2 > wall.y - wall.height &&
+            obj.y - obj.size / 2 < wall.y
+        );
+    }
+
+    function update() {
+        if (!window.moodflingerRunning) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw building background
+        ctx.fillStyle = '#d3d3d3';
+        ctx.fillRect(350, 50, 250, 350);
+
+        // Update and draw walls
+        walls.forEach(wall => {
+            if (wall.isFalling) {
+                wall.velocityY += gravity;
+                wall.y += wall.velocityY;
+                if (wall.y > canvas.height) wall.active = false;
+            }
+            if (wall.active) {
+                ctx.fillStyle = '#666';
+                ctx.fillRect(wall.x, wall.y - wall.height, wall.width, wall.height);
+            }
+        });
+
+        // Update and draw Angry Emojis
+        angryEmojis.forEach(emoji => {
+            if (!emoji.active) return;
+            if (emoji.isFalling) {
+                emoji.velocityY += gravity;
+                emoji.y += emoji.velocityY;
+                if (emoji.y > canvas.height && !emoji.explodeTime) {
+                    emoji.explodeTime = Date.now();
+                    playSound(successSound, 0.4);
+                    score++;
+                    scoreElement.textContent = `Angry Emojis knocked down: ${score}/5`;
+                }
+            }
+            if (emoji.explodeTime) {
+                const elapsed = (Date.now() - emoji.explodeTime) / 1000;
+                if (elapsed > 1) {
+                    emoji.active = false;
+                    return;
+                }
+                ctx.font = `${30 + elapsed * 20}px Arial`;
+                ctx.globalAlpha = 1 - elapsed;
+                ctx.fillText('💥', emoji.x, emoji.y);
+                ctx.globalAlpha = 1;
+            } else {
+                ctx.font = '30px Arial';
+                ctx.fillText('😣', emoji.x - 15, emoji.y + 10);
+            }
+        });
+
+        // Update and draw projectile
+        if (projectile && projectile.active) {
+            projectile.x += projectile.velocityX;
+            projectile.y += projectile.velocityY;
+            projectile.velocityY += gravity;
+
+            // Check collisions with Angry Emojis
+            angryEmojis.forEach(emoji => {
+                if (detectCollision(projectile, emoji)) {
+                    emoji.isFalling = true;
+                    projectile.active = false;
+                }
+            });
+
+            // Check collisions with walls
+            walls.forEach(wall => {
+                if (detectWallCollision(projectile, wall)) {
+                    wall.isFalling = true;
+                    projectile.active = false;
+                }
+            });
+
+            // Boundary check
+            if (
+                projectile.x < 0 ||
+                projectile.x > canvas.width ||
+                projectile.y > canvas.height ||
+                projectile.y < 0
+            ) {
+                projectile.active = false;
+            }
+
+            // Draw Happy Emoji (😊)
+            ctx.font = '30px Arial';
+            ctx.fillText('😊', projectile.x - 15, projectile.y + 10);
+        }
+
+        // Draw slingshot
+        ctx.fillStyle = '#e74c3c';
+        ctx.beginPath();
+        ctx.arc(slingshot.x, slingshot.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw sling if dragging
+        if (isDragging) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(slingshot.x, slingshot.y);
+            ctx.lineTo(startX, startY);
+            ctx.stroke();
+            ctx.font = '30px Arial';
+            ctx.fillText('😊', startX - 15, startY + 10);
+        }
+
+        // Check win condition
+        if (score >= 5) {
+            window.moodflingerRunning = false;
             playSound(successSound, 0.4);
-            setTimeout(() => closePopup('gratitude'), 1500);
+            alert('You win!');
+            gtag('event', 'Mood Flinger Win', { 'event_category': 'MoodFlinger', 'event_label': 'Win' });
+            setTimeout(() => closePopup('moodflinger'), 1500);
+            return;
         }
-    }, 1000);
-}
 
-function saveGratitude() {
-    const gratitudeText = document.getElementById('gratitude-text');
-    if (!gratitudeText.value.trim()) {
-        alert('Please enter something you are grateful for.');
-        return;
-    }
-    let gratitudes = JSON.parse(localStorage.getItem('gratitudes') || '[]');
-    gratitudes.push({ text: gratitudeText.value, date: new Date().toLocaleString() });
-    localStorage.setItem('gratitudes', JSON.stringify(gratitudes));
-    playSound(successSound, 0.4);
-    alert('Gratitude saved!');
-    gratitudeText.value = '';
-}
-
-function startStressJar() {
-    let time = 30;
-    const stressText = document.getElementById('stressjar-text');
-    const timerElement = document.getElementById('stressjar-timer');
-    const container = document.getElementById('stressjar-container');
-    stressText.value = '';
-    container.innerHTML = '';
-    updateProgress('stressjar-progress', 30, 0);
-    window.stressjarInterval = setInterval(() => {
-        time--;
-        timerElement.textContent = `Time remaining: ${time}s`;
-        updateProgress('stressjar-progress', 30, time);
-        if (time <= 0) {
-            clearInterval(window.stressjarInterval);
-            playSound(successSound, 0.4);
-            setTimeout(() => closePopup('stressjar'), 1500);
+        // Check game over
+        if (tries <= 0 && score < 5) {
+            window.moodflingerRunning = false;
+            playSound(clickSound, 0.4);
+            alert('Game over, try again!');
+            gtag('event', 'Mood Flinger Loss', { 'event_category': 'MoodFlinger', 'event_label': 'Loss' });
+            setTimeout(() => closePopup('moodflinger'), 1500);
+            return;
         }
-    }, 1000);
-}
 
-function sealStress() {
-    const stressText = document.getElementById('stressjar-text');
-    const container = document.getElementById('stressjar-container');
-    if (!stressText.value.trim()) {
-        alert('Please enter a stress to seal.');
-        return;
+        requestAnimationFrame(update);
     }
-    container.innerHTML = '<div class="sparkle">✨</div>';
-    playSound(successSound, 0.5);
-    let stresses = JSON.parse(localStorage.getItem('stresses') || '[]');
-    stresses.push({ text: stressText.value, date: new Date().toLocaleString() });
-    localStorage.setItem('stresses', JSON.stringify(stresses));
-    gtag('event', 'Seal Stress', { 'event_category': 'StressJar', 'event_label': 'Stress Sealed' });
-    setTimeout(() => {
-        stressText.value = '';
-        container.innerHTML = '';
-        alert('Stress sealed!');
-    }, 1000);
-}
 
-function viewStresses() {
-    const container = document.getElementById('stressjar-container');
-    let stresses = JSON.parse(localStorage.getItem('stresses') || '[]');
-    container.innerHTML = '';
-    if (stresses.length === 0) {
-        container.innerHTML = '<p>No stresses saved.</p>';
-        return;
-    }
-    stresses.forEach((stress, index) => {
-        const div = document.createElement('div');
-        div.className = 'stress-item';
-        div.innerHTML = `
-            <p>${stress.date}: ${stress.text}</p>
-            <button onclick="deleteStress(${index})">Delete</button>
-        `;
-        container.appendChild(div);
-    });
-    gtag('event', 'View Stresses', { 'event_category': 'StressJar', 'event_label': 'Stresses Viewed' });
-}
-
-function deleteStress(index) {
-    let stresses = JSON.parse(localStorage.getItem('stresses') || '[]');
-    stresses.splice(index, 1);
-    localStorage.setItem('stresses', JSON.stringify(stresses));
-    viewStresses();
-    playSound(clickSound, 0.3);
-}
-
-function startMoodQuest() {
-    let time = 90;
-    const goalInput = document.getElementById('quest-goal');
-    const stepsContainer = document.getElementById('quest-steps');
-    const progressMap = document.getElementById('quest-progress-map');
-    const timerElement = document.getElementById('moodquest-timer');
-    goalInput.value = '';
-    stepsContainer.innerHTML = '';
-    progressMap.innerHTML = '<div id="progress-marker" style="left: 0;"></div>';
-    updateProgress('moodquest-progress', 90, 0);
-    window.moodquestInterval = setInterval(() => {
-        time--;
-        timerElement.textContent = `Time remaining: ${time}s`;
-        updateProgress('moodquest-progress', 90, time);
-        if (time <= 0) {
-            clearInterval(window.moodquestInterval);
-            playSound(successSound, 0.4);
-            setTimeout(() => closePopup('moodquest'), 1500);
-        }
-    }, 1000);
-}
-
-function generateQuest() {
-    const goalInput = document.getElementById('quest-goal');
-    const stepsContainer = document.getElementById('quest-steps');
-    const progressMap = document.getElementById('quest-progress-map');
-    if (!goalInput.value.trim()) {
-        alert('Please enter a quest goal.');
-        return;
-    }
-    const steps = [
-        { task: "Take 5 deep breaths", xp: 1 },
-        { task: "Write down 3 things you're grateful for", xp: 2 },
-        { task: "Do a quick stretch", xp: 1 },
-        { task: "Drink a glass of water", xp: 1 },
-        { task: "Listen to a favorite song", xp: 2 },
-        { task: "Take a 5-minute walk", xp: 3 }
-    ];
-    const questSteps = [];
-    const stepCount = Math.floor(Math.random() * 3) + 3;
-    for (let i = 0; i < stepCount; i++) {
-        const randomStep = steps[Math.floor(Math.random() * steps.length)];
-        questSteps.push(randomStep);
-        steps.splice(steps.indexOf(randomStep), 1);
-    }
-    stepsContainer.innerHTML = '';
-    let totalXP = 0;
-    questSteps.forEach((step, index) => {
-        const div = document.createElement('div');
-        div.className = 'quest-step';
-        div.innerHTML = `
-            <input type="checkbox" id="step-${index}" onchange="updateQuestProgress(${index}, ${step.xp})">
-            <label for="step-${index}">${step.task} (+${step.xp} XP)</label>
-        `;
-        stepsContainer.appendChild(div);
-        totalXP += step.xp;
-    });
-    let quests = JSON.parse(localStorage.getItem('quests') || '[]');
-    quests.push({
-        goal: goalInput.value,
-        steps: questSteps,
-        date: new Date().toLocaleString()
-    });
-    localStorage.setItem('quests', JSON.stringify(quests));
-    gtag('event', 'Generate Quest', { 'event_category': 'MoodQuest', 'event_label': goalInput.value });
-}
-
-function updateQuestProgress(stepIndex, xp) {
-    const progressMap = document.getElementById('quest-progress-map');
-    const marker = document.getElementById('progress-marker');
-    const checkboxes = document.querySelectorAll('#quest-steps input[type="checkbox"]');
-    let completed = 0;
-    checkboxes.forEach(checkbox => {
-        if (checkbox.checked) completed++;
-    });
-    const progress = (completed / checkboxes.length) * 100;
-    marker.style.left = `${progress}%`;
-    let totalXP = JSON.parse(localStorage.getItem('totalXP') || '0');
-    totalXP = parseInt(totalXP) + xp;
-    localStorage.setItem('totalXP', totalXP);
-    checkBadges(totalXP);
-    gtag('event', 'Complete Quest Step', { 'event_category': 'MoodQuest', 'event_label': `Step ${stepIndex}` });
-}
-
-function checkBadges(totalXP) {
-    const badgesContainer = document.getElementById('quest-badges');
-    let badges = JSON.parse(localStorage.getItem('badges') || '[]');
-    const badgeLevels = [
-        { xp: 10, name: 'Quest Starter' },
-        { xp: 25, name: 'Task Champion' },
-        { xp: 50, name: 'Mood Master' }
-    ];
-    badgeLevels.forEach(level => {
-        if (totalXP >= level.xp && !badges.includes(level.name)) {
-            badges.push(level.name);
-            alert(`New badge earned: ${level.name}!`);
-        }
-    });
-    localStorage.setItem('badges', JSON.stringify(badges));
-    badgesContainer.innerHTML = badges.length ? `Badges: ${badges.join(', ')}` : 'No badges yet';
-}
-
-function viewQuests() {
-    const stepsContainer = document.getElementById('quest-steps');
-    let quests = JSON.parse(localStorage.getItem('quests') || '[]');
-    stepsContainer.innerHTML = '';
-    if (quests.length === 0) {
-        stepsContainer.innerHTML = '<p>No quests saved.</p>';
-        return;
-    }
-    quests.forEach((quest, index) => {
-        const div = document.createElement('div');
-        div.className = 'quest-item';
-        div.innerHTML = `
-            <p><strong>Goal:</strong> ${quest.goal}</p>
-            <p><strong>Date:</strong> ${quest.date}</p>
-            <p><strong>Steps:</strong></p>
-            <ul>${quest.steps.map(step => `<li>${step.task} (+${step.xp} XP)</li>`).join('')}</ul>
-            <button onclick="deleteQuest(${index})">Delete</button>
-        `;
-        stepsContainer.appendChild(div);
-    });
-    gtag('event', 'View Quests', { 'event_category': 'MoodQuest', 'event_label': 'Quests Viewed' });
-}
-
-function deleteQuest(index) {
-    let quests = JSON.parse(localStorage.getItem('quests') || '[]');
-    quests.splice(index, 1);
-    localStorage.setItem('quests', JSON.stringify(quests));
-    viewQuests();
-    playSound(clickSound, 0.3);
+    // Start game loop
+    update();
 }
