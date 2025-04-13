@@ -137,7 +137,10 @@ function closePopup(tool) {
         document.getElementById('paper-strips-container').innerHTML = '';
     }
     if (tool === 'color') clearInterval(window.colorInterval);
-    if (tool === 'sudoku') clearInterval(window.sudokuInterval);
+    if (tool === 'sudoku') {
+        document.getElementById('sudoku-grid').innerHTML = '';
+        document.getElementById('check-solution').style.display = 'none';
+    }
     if (tool === 'moodflinger') clearInterval(window.moodflingerInterval);
     if (tool === 'asmr') {
         clearInterval(window.asmrInterval);
@@ -436,47 +439,159 @@ function startColorFocus() {
     }, 1000);
 }
 
+function generateSudoku(difficulty) {
+    // Initialize empty 9x9 grid
+    const grid = Array(9).fill().map(() => Array(9).fill(0));
+
+    // Fill diagonal 3x3 boxes (ensures solvability)
+    for (let box = 0; box < 9; box += 3) {
+        const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
+        let idx = 0;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                grid[box + i][box + j] = nums[idx++];
+            }
+        }
+    }
+
+    // Solve the grid using backtracking
+    function solve(grid) {
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (grid[row][col] === 0) {
+                    const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
+                    for (let num of nums) {
+                        if (isValidSudoku(grid, row, col, num)) {
+                            grid[row][col] = num;
+                            if (solve(grid)) return true;
+                            grid[row][col] = 0;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    solve(grid);
+
+    // Copy the solved grid as the solution
+    const solution = grid.map(row => [...row]);
+
+    // Remove numbers based on difficulty
+    let clues;
+    switch (difficulty) {
+        case 'easy':
+            clues = 40; // ~49% filled
+            break;
+        case 'intermediate':
+            clues = 30; // ~37% filled
+            break;
+        case 'hard':
+            clues = 20; // ~25% filled
+            break;
+        default:
+            clues = 30;
+    }
+
+    // Randomly remove numbers
+    let cellsToRemove = 81 - clues;
+    while (cellsToRemove > 0) {
+        const row = Math.floor(Math.random() * 9);
+        const col = Math.floor(Math.random() * 9);
+        if (grid[row][col] !== 0) {
+            grid[row][col] = 0;
+            cellsToRemove--;
+        }
+    }
+
+    return { puzzle: grid, solution };
+}
+
+function isValidSudoku(grid, row, col, num) {
+    // Check row
+    for (let x = 0; x < 9; x++) {
+        if (grid[row][x] === num) return false;
+    }
+    // Check column
+    for (let x = 0; x < 9; x++) {
+        if (grid[x][col] === num) return false;
+    }
+    // Check 3x3 box
+    const startRow = row - (row % 3);
+    const startCol = col - (col % 3);
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (grid[i + startRow][j + startCol] === num) return false;
+        }
+    }
+    return true;
+}
+
 function startSudoku() {
-    let time = 90;
     const gridElement = document.getElementById('sudoku-grid');
-    const timerElement = document.getElementById('sudoku-timer');
+    const difficultySelect = document.getElementById('sudoku-difficulty');
+    const checkButton = document.getElementById('check-solution');
     gridElement.innerHTML = '';
-    const puzzle = [
-        [5, 3, '', '', 7, '', '', '', ''],
-        [6, '', '', 1, 9, 5, '', '', ''],
-        ['', 9, 8, '', '', '', '', 6, ''],
-        [8, '', '', '', 6, '', '', '', 3],
-        [4, '', '', 8, '', 3, '', '', 1],
-        ['', '', '', '', 2, '', '', '', 6],
-        ['', 6, '', '', '', '', 2, 8, ''],
-        ['', '', '', 4, 1, 9, '', '', 5],
-        ['', '', '', '', 8, '', '', 7, 9]
-    ];
+    checkButton.style.display = 'none';
+
+    // Generate puzzle based on selected difficulty
+    const difficulty = difficultySelect.value;
+    const { puzzle, solution } = generateSudoku(difficulty);
+
+    // Store solution for checking
+    window.sudokuSolution = solution;
+
+    // Render puzzle
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
             const input = document.createElement('input');
             input.type = 'text';
             input.maxLength = 1;
-            input.value = puzzle[i][j] || '';
-            input.disabled = !!puzzle[i][j];
+            input.value = puzzle[i][j] === 0 ? '' : puzzle[i][j];
+            input.disabled = puzzle[i][j] !== 0;
             input.className = 'sudoku-cell';
             input.oninput = () => {
                 if (!/^[1-9]?$/.test(input.value)) input.value = '';
+                // Check if all cells are filled
+                const inputs = gridElement.querySelectorAll('input');
+                const allFilled = Array.from(inputs).every(inp => inp.value !== '');
+                checkButton.style.display = allFilled ? 'block' : 'none';
             };
             gridElement.appendChild(input);
         }
     }
-    updateProgress('sudoku-progress', 90, 0);
-    window.sudokuInterval = setInterval(() => {
-        time--;
-        timerElement.textContent = `Time remaining: ${time}s`;
-        updateProgress('sudoku-progress', 90, time);
-        if (time <= 0) {
-            clearInterval(window.sudokuInterval);
-            playSound(successSound, 0.4);
-            setTimeout(() => closePopup('sudoku'), 1500);
+
+    // Log difficulty selection
+    gtag('event', 'Sudoku Difficulty', { 'event_category': 'Sudoku', 'event_label': difficulty });
+}
+
+function checkSudokuSolution() {
+    const gridElement = document.getElementById('sudoku-grid');
+    const inputs = gridElement.querySelectorAll('input');
+    let isCorrect = true;
+    let idx = 0;
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            const inputVal = inputs[idx].value ? parseInt(inputs[idx].value) : 0;
+            if (inputVal !== window.sudokuSolution[i][j]) {
+                isCorrect = false;
+                inputs[idx].style.backgroundColor = '#ffcccc'; // Highlight errors
+            } else {
+                inputs[idx].style.backgroundColor = ''; // Reset
+            }
+            idx++;
         }
-    }, 1000);
+    }
+    playSound(isCorrect ? successSound : clickSound, 0.4);
+    alert(isCorrect ? 'Good job, you are correct!' : 'Sorry, there are errors. Try again!');
+    if (isCorrect) {
+        gtag('event', 'Sudoku Solved', { 'event_category': 'Sudoku', 'event_label': 'Correct' });
+        setTimeout(() => closePopup('sudoku'), 1500);
+    } else {
+        gtag('event', 'Sudoku Attempt', { 'event_category': 'Sudoku', 'event_label': 'Incorrect' });
+    }
 }
 
 function startMoodFlinger() {
