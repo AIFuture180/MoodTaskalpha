@@ -148,11 +148,13 @@ function updateProgress(elementId, total, current) {
 
 function startBreathing() {
     let time = 60;
-    let step = 0;
+    let cycleTime = 0; // Tracks time within a cycle (0 to 12 seconds)
+    const cycleDuration = 13; // 4s inhale + 4s hold + 4s exhale + 1s pause
     const steps = [
-        { text: "Inhale", instruction: "Breathe in slowly through your nose...", class: "inhale" },
-        { text: "Hold", instruction: "Hold your breath...", class: "hold" },
-        { text: "Exhale", instruction: "Breathe out slowly through your mouth...", class: "exhale" }
+        { text: "Inhale", instruction: "Breathe in slowly through your nose...", class: "inhale", duration: 4 },
+        { text: "Hold", instruction: "Hold your breath...", class: "hold", duration: 4 },
+        { text: "Exhale", instruction: "Breathe out slowly through your mouth...", class: "exhale", duration: 4 },
+        { text: "Pause", instruction: "Relax for a moment...", class: "pause", duration: 1 }
     ];
     const stepElement = document.getElementById('breathing-step');
     const instructionElement = document.getElementById('breathing-instruction');
@@ -160,24 +162,31 @@ function startBreathing() {
     const circle = document.getElementById('breathing-circle');
     circle.className = '';
     updateProgress('breathing-progress', 60, 0);
+
     function updateBreathing() {
-        if (time % 4 === 0) {
-            step = (step % 3);
-            stepElement.textContent = steps[step].text;
-            instructionElement.textContent = steps[step].instruction;
-            circle.className = steps[step].class;
-            step++;
-        }
+        const currentStepIndex = Math.floor(cycleTime / 4) % 4; // Determines step based on cycle time
+        const currentStep = steps[currentStepIndex];
+
+        // Update text, instruction, and animation class
+        stepElement.textContent = currentStep.text;
+        instructionElement.textContent = currentStep.instruction;
+        circle.className = currentStep.class;
+
+        // Increment timers
+        cycleTime = (cycleTime + 1) % cycleDuration; // Reset cycleTime after 13 seconds
         time--;
         timerElement.textContent = `Time remaining: ${time}s`;
         updateProgress('breathing-progress', 60, time);
+
+        // End after 60 seconds
         if (time <= 0) {
             clearInterval(window.breathingInterval);
             playSound(successSound, 0.4);
             setTimeout(() => closePopup('breathing'), 1500);
         }
     }
-    updateBreathing();
+
+    updateBreathing(); // Initial call to set starting state
     window.breathingInterval = setInterval(updateBreathing, 1000);
 }
 
