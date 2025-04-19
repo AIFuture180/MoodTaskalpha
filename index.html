@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Boost your mood in seconds with fun, science-backed tasks tailored to how you feel. Try Mood to Task now!">
-    <meta name="keywords" content="mood boost, quick tasks, mental health, emotional well-being">
+    <meta name="description" content="Boost your mood in seconds with fun, science-backed tasks tailored to how you feel. Discover tasks to impact sleep, diet, exercise, and mindfulness, plus insights on diet and mood.">
+    <meta name="keywords" content="mood boost, quick tasks, mental health, emotional well-being, sleep improvement, diet tips, exercise ideas, mindfulness practices">
     <meta name="robots" content="index, follow">
     <title>Mood to Task | Boost Your Mood Instantly</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script defer src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1511837633001567" crossorigin="anonymous" data-ad-init-load="300"></script>
+    <!-- Google tag (gtag.js) -->
     <script defer src="https://www.googletagmanager.com/gtag/js?id=G-4985X51W1J"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -16,21 +17,28 @@
         gtag('js', new Date());
         gtag('config', 'G-4985X51W1J');
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav id="nav">
         <div class="logo">Mood<span>Task</span></div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-button active">Home</a>
+            <a href="privacy.html" class="nav-button">Privacy Policy</a>
+            <a href="terms.html" class="nav-button">Terms of Use</a>
+        </div>
     </nav>
 
+    <!-- Hero Section -->
     <div class="hero-section">
         <h1>Boost Your Mood in Seconds</h1>
         <h2>Fun, Quick Tasks Tailored to How You Feel</h2>
         <button class="hero-cta pulse-animation" onclick="document.getElementById('mood-prompt').scrollIntoView({ behavior: 'smooth' })">Get Started</button>
     </div>
 
+    <!-- Mood Prompt -->
     <div id="mood-prompt">
         <div id="instruction">How are you feeling right now?</div>
         <div id="mood-buttons">
@@ -51,64 +59,295 @@
             <button class="tool-button punching" onclick="openPopup('punching')"><i class="fas fa-fist-raised tool-icon"></i>Punching Bag</button>
             <button class="tool-button stretch" onclick="openPopup('stretch')"><i class="fas fa-child tool-icon"></i>Stretch</button>
             <button class="tool-button doodle" onclick="openPopup('doodle')"><i class="fas fa-pencil-alt tool-icon"></i>Doodle</button>
+            <button class="tool-button dance" onclick="openPopup('dance')"><i class="fas fa-music tool-icon"></i>Dance</button>
             <button class="tool-button worry" onclick="openPopup('worry')"><i class="fas fa-cut tool-icon"></i>Worry Shredder</button>
             <button class="tool-button color" onclick="openPopup('color')"><i class="fas fa-palette tool-icon"></i>Color Focus</button>
-            <button class="tool-button sudoku" onclick="openPopup('sudoku')"><i class="fas fa-puzzle-piece tool-icon"></i>Sudoku</button>
-            <button class="tool-button asmr" onclick="openPopup('asmr')"><i class="fas fa-headphones tool-icon"></i>ASMR</button>
         </div>
     </div>
 
+    <!-- Why Mood to Task -->
     <div id="intro-content">
         <h2 class="section-heading">Why Mood to Task?</h2>
         <div class="feature-cards">
             <div class="feature-card">
                 <span class="feature-icon">⚡</span>
                 <h3>Instant Mood Boost</h3>
-                <p>Quick, fun tasks to shift your mood in under a minute.</p>
+                <p>Get quick, fun tasks to shift your mood in under a minute.</p>
             </div>
             <div class="feature-card">
                 <span class="feature-icon">🧠</span>
                 <h3>Science-Backed</h3>
                 <p>Activities rooted in psychology and neuroscience.</p>
             </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <p>Personal tasks based on your current mood.</p>
+            </div>
         </div>
     </div>
 
+    <!-- Tasks to Impact -->
+    <div id="tasks-content">
+        <h2 class="section-heading">Tasks to Impact</h2>
+        <p>Explore how science-backed protocols can positively impact your sleep, diet, exercise, and mindfulness. Click on each category below to discover expert-recommended strategies that can make a big difference in your daily life!</p>
+        <p class="disclaimer"><em>Health Disclaimer: The information provided is for informational purposes only and is not intended as medical advice. Always consult a qualified healthcare provider before making changes to your sleep, diet, exercise, or mindfulness routines.</em></p>
+        <div class="button-container">
+            <button class="impact-button sleep-button" onclick="toggleContent('sleep'); gtag('event', 'Impact Button Click', { 'event_category': 'Impact Button', 'event_label': 'Sleep' });" aria-expanded="false" aria-controls="sleep">Sleep</button>
+            <button class="impact-button diet-button" onclick="toggleContent('diet'); gtag('event', 'Impact Button Click', { 'event_category': 'Impact Button', 'event_label': 'Diet' });" aria-expanded="false" aria-controls="diet">Diet</button>
+            <button class="impact-button exercise-button" onclick="toggleContent('exercise'); gtag('event', 'Impact Button Click', { 'event_category': 'Impact Button', 'event_label': 'Exercise' });" aria-expanded="false" aria-controls="exercise">Exercise</button>
+            <button class="impact-button mindfulness-button" onclick="toggleContent('mindfulness'); gtag('event', 'Impact Button Click', { 'event_category': 'Impact Button', 'event_label': 'Mindfulness' });" aria-expanded="false" aria-controls="mindfulness">Mindfulness</button>
+        </div>
+        <div class="impact-content" id="sleep">
+            <h4>Improve Your Sleep with Dr. Matthew Walker’s Protocol</h4>
+            <p>Dr. Matthew Walker, a sleep expert, shares these science-backed steps to enhance your sleep quality:</p>
+            <ul>
+                <li><strong>Regularity:</strong> Go to bed and wake up at the same time every day to anchor your sleep cycle.</li>
+                <li><strong>Darkness:</strong> Dim lights by 50% in the last hour before bed to boost melatonin production.</li>
+                <li><strong>Temperature:</strong> Keep your bedroom cool, around 67°F (18.5°C), to help your body’s core temperature drop for sleep.</li>
+                <li><strong>Avoid Caffeine and Alcohol:</strong> Limit caffeine 8–12 hours before bed and avoid alcohol, as even one drink can disrupt sleep architecture.</li>
+                <li><strong>Wind-Down Routine:</strong> Use meditation or a relaxing activity before bed to reduce anxiety and prepare your mind for sleep.</li>
+            </ul>
+            <button class="close-button" onclick="toggleContent('sleep')">Close</button>
+        </div>
+        <div class="impact-content" id="diet">
+            <h4>Optimize Your Diet with Expert Protocols</h4>
+            <p>Explore diet recommendations from leading experts to improve your health and well-being:</p>
+            <div class="sub-button-container">
+                <button class="sub-impact-button" onclick="toggleSubContent('brecka-diet')" aria-expanded="false" aria-controls="brecka-diet">Gary Brecka’s Diet Protocol</button>
+                <button class="sub-impact-button" onclick="toggleSubContent('johnson-diet')" aria-expanded="false" aria-controls="johnson-diet">Bryan Johnson’s Diet Protocol</button>
+                <button class="sub-impact-button" onclick="toggleSubContent('huberman-diet')" aria-expanded="false" aria-controls="huberman-diet">Andrew Huberman’s Diet Protocol</button>
+            </div>
+            <div class="sub-impact-content" id="brecka-diet">
+                <h5>Gary Brecka’s Diet Protocol</h5>
+                <p>Gary Brecka, a human biologist, recommends a high-fat, low-carb ketogenic diet with the 30-30-30 method:</p>
+                <ul>
+                    <li><strong>30-30-30 Method:</strong> Consume 30g of protein within 30 minutes of waking, followed by 30 minutes of low-intensity exercise.</li>
+                    <li><strong>Macronutrients:</strong> 70-75% fat, 20-25% protein, 5-10% carbs to induce ketosis.</li>
+                    <li><strong>Foods to Eat:</strong> Grass-fed beef, wild-caught salmon, free-range eggs, avocado, coconut oil, organic frozen veggies.</li>
+                    <li><strong>Foods to Avoid:</strong> Refined sugars, white rice, seed oils, non-organic/GMO produce.</li>
+                    <li><strong>Hydration:</strong> Add a pinch of Celtic sea salt to water for mineral balance.</li>
+                </ul>
+                <button class="close-sub-button" onclick="toggleSubContent('brecka-diet')">Close</button>
+            </div>
+            <div class="sub-impact-content" id="johnson-diet">
+                <h5>Bryan Johnson’s Diet Protocol</h5>
+                <p>Bryan Johnson, a longevity enthusiast, follows a strict, data-driven plant-based diet:</p>
+                <ul>
+                    <li><strong>Calorie Precision:</strong> ~1,977 calories/day, measured precisely to maintain optimal weight.</li>
+                    <li><strong>Plant-Based:</strong> Focuses on nutrient-dense foods like lentils, black beans, broccoli, cauliflower.</li>
+                    <li><strong>Super Veggie Blend:</strong> A daily mix of broccoli, cauliflower, mushrooms, garlic, ginger, and vinegar.</li>
+                    <li><strong>Supplements:</strong> Includes olive oil, cacao flavanols, and a custom “Blueprint” stack.</li>
+                    <li><strong>Timing:</strong> Eats within an 8-hour window (intermittent fasting).</li>
+                </ul>
+                <button class="close-sub-button" onclick="toggleSubContent('johnson-diet')">Close</button>
+            </div>
+            <div class="sub-impact-content" id="huberman-diet">
+                <h5>Andrew Huberman’s Diet Protocol</h5>
+                <p>Neuroscientist Andrew Huberman advocates a flexible, science-based approach to eating:</p>
+                <ul>
+                    <li><strong>Protein Focus:</strong> 1g of protein per pound of body weight daily to support muscle and brain health.</li>
+                    <li><strong>Carb Timing:</strong> Low-carb during the day for mental clarity; higher carbs at night to aid sleep.</li>
+                    <li><strong>Fat Sources:</strong> Healthy fats from olive oil, avocados, and nuts for brain function.</li>
+                    <li><strong>Hydration:</strong> Drink water with electrolytes first thing in the morning.</li>
+                    <li><strong>Fasting:</strong> Delays caffeine 90-120 minutes after waking and uses intermittent fasting.</li>
+                </ul>
+                <button class="close-sub-button" onclick="toggleSubContent('huberman-diet')">Close</button>
+            </div>
+            <button class="close-button" onclick="toggleContent('diet')">Close</button>
+        </div>
+        <div class="impact-content" id="exercise">
+            <h4>Boost Your Fitness with Expert Protocols</h4>
+            <p>Explore exercise routines from top experts to enhance your physical and mental health:</p>
+            <div class="sub-button-container">
+                <button class="sub-impact-button" onclick="toggleSubContent('brecka-exercise')" aria-expanded="false" aria-controls="brecka-exercise">Gary Brecka’s Exercise Protocol</button>
+                <button class="sub-impact-button" onclick="toggleSubContent('johnson-exercise')" aria-expanded="false" aria-controls="johnson-exercise">Bryan Johnson’s Exercise Protocol</button>
+                <button class="sub-impact-button" onclick="toggleSubContent('huberman-exercise')" aria-expanded="false" aria-controls="huberman-exercise">Andrew Huberman’s Exercise Protocol</button>
+            </div>
+            <div class="sub-impact-content" id="brecka-exercise">
+                <h5>Gary Brecka’s Exercise Protocol</h5>
+                <p>Gary Brecka emphasizes oxygen delivery and muscle efficiency:</p>
+                <ul>
+                    <li><strong>30-Minute Morning Walk:</strong> Low-intensity cardio post-protein to burn fat and oxygenate blood.</li>
+                    <li><strong>Breathwork:</strong> 3 rounds of 30 deep breaths (Wim Hof-inspired) to boost energy.</li>
+                    <li><strong>Resistance Training:</strong> 3-4x/week, focusing on compound lifts for strength.</li>
+                    <li><strong>Cold Exposure:</strong> 3-5 minutes in cold water post-workout to reduce inflammation.</li>
+                </ul>
+                <button class="close-sub-button" onclick="toggleSubContent('brecka-exercise')">Close</button>
+            </div>
+            <div class="sub-impact-content" id="johnson-exercise">
+                <h5>Bryan Johnson’s Exercise Protocol</h5>
+                <p>Bryan Johnson’s routine is optimized for longevity and efficiency:</p>
+                <ul>
+                    <li><strong>Daily Activity:</strong> 1 hour/day of mixed exercise (e.g., hiking, resistance training, HIIT).</li>
+                    <li><strong>Strength:</strong> High-intensity resistance 3x/week for muscle maintenance.</li>
+                    <li><strong>Cardio:</strong> 3x/week of Zone 2 cardio for 45 minutes.</li>
+                    <li><strong>Flexibility:</strong> Daily stretching or yoga to maintain mobility.</li>
+                </ul>
+                <button class="close-sub-button" onclick="toggleSubContent('johnson-exercise')">Close</button>
+            </div>
+            <div class="sub-impact-content" id="huberman-exercise">
+                <h5>Andrew Huberman’s Exercise Protocol</h5>
+                <p>Andrew Huberman balances fitness with brain health:</p>
+                <ul>
+                    <li><strong>Cardio:</strong> 3-4x/week of Zone 2 cardio for 30-60 minutes.</li>
+                    <li><strong>Strength:</strong> 2-3x/week of resistance training for 45-60 minutes.</li>
+                    <li><strong>Neck Exercises:</strong> Daily neck stretches to support posture and brain blood flow.</li>
+                    <li><strong>Sunlight:</strong> Exercise outdoors when possible to regulate circadian rhythm.</li>
+                </ul>
+                <button class="close-sub-button" onclick="toggleSubContent('huberman-exercise')">Close</button>
+            </div>
+            <button class="close-button" onclick="toggleContent('exercise')">Close</button>
+        </div>
+        <div class="impact-content" id="mindfulness">
+            <h4>Enhance Mindfulness with Dr. Andrew Huberman’s Protocol</h4>
+            <p>Dr. Andrew Huberman offers these neuroscience-based mindfulness practices:</p>
+            <ul>
+                <li><strong>Morning Sunlight:</strong> Get 5-10 minutes of sunlight within an hour of waking.</li>
+                <li><strong>One-Minute Meditation:</strong> Focus on your breath to calm your mind anytime.</li>
+                <li><strong>Visual Reset:</strong> Look at a distant horizon for 30 seconds to relax your eyes.</li>
+                <li><strong>Gratitude Practice:</strong> Write or think of 1-3 things you’re grateful for daily.</li>
+            </ul>
+            <button class="close-button" onclick="toggleContent('mindfulness')">Close</button>
+        </div>
+    </div>
+
+    <!-- Blog Section -->
+    <div id="blog-posts">
+        <h2 class="section-heading">Blog</h2>
+        <p>Explore insights on mental health, productivity, and well-being.</p>
+        <div class="blog-post">
+            <h3>Why Small Tasks Can Transform Your Mood</h3>
+            <p class="post-meta">Posted on April 3, 2025 by Mood Task Team</p>
+            <p>Did you know that small, intentional actions can significantly impact your emotional well-being?...</p>
+            <div class="full-content" style="display: none;">
+                <p>Research in positive psychology shows that completing micro-tasks, like a one-minute breathing exercise or writing a gratitude note, can shift your brain’s focus from stress to calm. These tasks work by engaging the prefrontal cortex, helping you regain control over your emotions.</p>
+                <p>For example, our “Punching Bag” tool lets you release frustration in just 30 seconds, while the “Doodle” activity sparks creativity when you’re bored. Each task is designed to align with your current mood, making it easier to feel better fast.</p>
+            </div>
+            <button class="read-more-button" onclick="toggleBlogPost(this)">Read More</button>
+        </div>
+        <div class="blog-post">
+            <h3>The Science Behind Mood-Based Activities</h3>
+            <p class="post-meta">Posted on April 1, 2025 by Mood Task Team</p>
+            <p>Ever wonder why a quick dance break can lift your spirits?...</p>
+            <div class="full-content" style="display: none;">
+                <p>Neuroscience reveals that physical movement, like dancing, triggers the release of dopamine and endorphins—your brain’s natural “feel-good” chemicals. Similarly, activities like our “Color Focus” tool use visual stimuli to activate the brain’s relaxation response.</p>
+                <p>By tailoring tasks to your mood, Mood to Task leverages these scientific principles to help you feel better instantly, whether you’re stressed, sad, or just bored.</p>
+            </div>
+            <button class="read-more-button" onclick="toggleBlogPost(this)">Read More</button>
+        </div>
+        <div class="blog-post">
+            <h3>How to Build a Daily Mood-Boosting Routine</h3>
+            <p class="post-meta">Posted on March 28, 2025 by Mood Task Team</p>
+            <p>Consistency is key to emotional well-being...</p>
+            <div class="full-content" style="display: none;">
+                <p>Incorporating small tasks into your daily routine can create lasting improvements in your mood. Start your day with a one-minute gratitude note, take a mid-day stretch break, or end with a calming soundscape. These micro-habits compound over time, rewiring your brain for positivity.</p>
+                <p>Try using Mood to Task daily to discover which activities resonate most with you, and build a personalized routine that fits your lifestyle.</p>
+            </div>
+            <button class="read-more-button" onclick="toggleBlogPost(this)">Read More</button>
+        </div>
+    </div>
+
+    <!-- Diet Section -->
+    <div id="diet-content">
+        <h2 class="section-heading">Diet</h2>
+        <h3>Fuel Your Mood with the Right Foods</h3>
+        <p>What you eat can significantly affect how you feel. A balanced diet is key to supporting your mental health and well-being. Explore mood-boosting foods and dietary tips in our Tasks to Impact section above for expert protocols from Gary Brecka, Bryan Johnson, and Andrew Huberman.</p>
+    </div>
+
+    <!-- About Section -->
+    <div id="about-content">
+        <h2 class="section-heading">About Us</h2>
+        <h3>Our Mission</h3>
+        <p>At Mood-to-Task Matcher, our mission is to empower you to take control of your emotional well-being with quick, science-backed activities tailored to your mood. We believe that small actions can lead to big changes, helping you feel better in seconds.</p>
+        <h3>Meet the Founder</h3>
+        <p>Hi, I’m Sarah, the creator of Mood-to-Task Matcher. As someone who’s navigated the ups and downs of mental health, I wanted to create a tool that makes it easy for anyone to find quick, effective ways to shift their mood. Inspired by psychology and neuroscience, this platform is my passion project to help you feel your best.</p>
+        <h3>Frequently Asked Questions</h3>
+        <div class="faq">
+            <h4>How does Mood-to-Task Matcher work?</h4>
+            <p>Select your current mood, and we’ll suggest a quick task tailored to how you feel—whether it’s a breathing exercise, a gratitude note, or a fun doodle. Each task is designed to shift your mood in under a minute.</p>
+        </div>
+        <div class="faq">
+            <h4>Is it free to use?</h4>
+            <p>Yes, Mood-to-Task Matcher is completely free! We’re supported by donations and affiliate partnerships, so you can enjoy all features at no cost.</p>
+        </div>
+        <div class="faq">
+            <h4>Can I suggest new tasks?</h4>
+            <p>Absolutely! We’d love to hear your ideas. Reach out to us via the contact form below.</p>
+        </div>
+        <h3>Contact Us</h3>
+        <p>Have questions or feedback? Send us a message, and we’ll get back to you as soon as possible!</p>
+        <form id="contact-form" action="https://formspree.io/f/xrbzpqar" method="POST">
+            <input type="text" id="name" name="name" placeholder="Your Name" required>
+            <input type="email" id="email" name="email" placeholder="Your Email" required>
+            <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+    </div>
+
+    <!-- Banner -->
+    <div id="banner" class="premium-offer">
+        <div class="ribbon"><span>SPECIAL OFFER</span></div>
+        <p class="ad-label">Feel Better Faster with Professional Support</p>
+        <p class="disclaimer"><em>Affiliate Disclosure: Mood-to-Task Matcher may earn a commission from purchases at no extra cost to you.</em></p>
+        <a href="https://onlinetherapy.go2cloud.org/aff_c?offer_id=2&aff_id=4837&file_id=5" class="banner-link">
+            <img src="https://media.go2speed.org/brand/files/onlinetherapy/2/online-therapy-banner_728x90.jpg" alt="Online Therapy Banner" class="banner-img">
+        </a>
+        <img src="https://onlinetherapy.go2cloud.org/aff_i?offer_id=2&file_id=5&aff_id=4837" width="0" height="0" style="position:absolute;visibility:hidden;" border="0" />
+        <div class="ad-info">
+            <h4>Why 10,000+ People Choose Online Therapy:</h4>
+            <div class="benefits-grid">
+                <div class="benefit-item"><span class="benefit-icon">🎯</span><span>Weekly video sessions</span></div>
+                <div class="benefit-item"><span class="benefit-icon">💬</span><span>Unlimited messaging</span></div>
+                <div class="benefit-item"><span class="benefit-icon">📱</span><span>Access anywhere</span></div>
+                <div class="benefit-item"><span class="benefit-icon">🛠️</span><span>25+ practical worksheets</span></div>
+            </div>
+            <div class="promo-code"><p>Use code: <strong>THERAPY20</strong> for 20% OFF</p></div>
+            <button class="cta-button" onclick="window.open('https://onlinetherapy.go2cloud.org/aff_c?offer_id=2&aff_id=4837&file_id=5', '_blank')">Get Started Now</button>
+        </div>
+    </div>
+    <p class="disclaimer"><em>Disclaimer: The suggestions provided by Mood to Task are not substitutes for professional medical or psychological advice. Always consult a qualified professional for personalized guidance.</em></p>
+
+    <!-- Share Button -->
+    <button id="share" class="share-button" aria-label="Share this page on X">
+        <svg class="share-logo" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+        <span>Share on X</span>
+    </button>
+
+    <!-- Donate -->
     <div id="donate">
         <h3>Support Us</h3>
-        <p>Support Mood to Task by using our affiliate link or buying us a coffee—thank you!</p>
-        <a href="https://amzn.to/42ImpbI" target="_blank" rel="noopener noreferrer" class="affiliate-link">Shop Stress Balls on Amazon</a>
-        <a href="https://www.buymeacoffee.com/moodtask" target="_blank" rel="noopener noreferrer" class="coffee-link">Buy Me a Coffee</a>
+        <p>If you find Mood to Task helpful, please consider supporting us!</p>
+        <a href="https://www.buymeacoffee.com/moodtask" target="_blank" rel="noopener noreferrer">
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" style="width: 150px; height: auto;">
+        </a>
     </div>
 
+    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <button id="share" class="share-button" aria-label="Share this page on X">
-                <svg class="share-logo" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-                <span>Share on X</span>
-            </button>
-            <p class="disclaimer"><em>Mood to Task is for informational purposes only and not a substitute for professional medical advice.</em></p>
-            <p class="affiliate-disclosure">Mood to Task is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.</p>
-            <p class="footer-links">
-                <a href="privacy.html" target="_blank">Privacy Policy</a>
-            </p>
-            <p class="copyright">© 2025 Mood to Task. All rights reserved.</p>
+        <div class="footer-columns">
+            <div class="footer-column">
+                <h4>Mood to Task</h4>
+                <p>Transform your mood in seconds with fun, quick activities tailored to how you feel.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <a href="privacy.html" class="footer-link">Privacy Policy</a>
+                <a href="terms.html" class="footer-link">Terms of Use</a>
+            </div>
         </div>
+        <p class="disclaimer"><em>General Disclaimer: Mood to Task provides this website for informational purposes only. We are not responsible for any errors, omissions, or outcomes resulting from the use of this information. Users follow external links, including those to third-party sites, at their own risk. Always review the terms and privacy policies of external websites.</em></p>
+        <p class="copyright">© 2025 Mood to Task. All rights reserved.</p>
     </footer>
 
     <!-- Popups -->
     <div id="breathing-popup" class="popup">
         <div class="popup-content">
             <h4>Breathing Exercise</h4>
-            <div id="breathing-circle">
-                <span id="breathing-step">Inhale</span>
-            </div>
+            <div id="breathing-circle"><span id="breathing-step">Inhale</span></div>
             <p id="breathing-instruction">Breathe in deeply...</p>
-            <div class="progress-container">
-                <div id="breathing-progress" class="progress-bar"></div>
-            </div>
+            <div class="progress-container"><div id="breathing-progress" class="progress-bar"></div></div>
             <p id="breathing-timer">Time remaining: 60s</p>
             <button class="close-button" onclick="closePopup('breathing')"><i class="fas fa-times"></i></button>
         </div>
@@ -135,9 +374,7 @@
                 <button id="play-btn" class="audio-btn"><i class="fas fa-play"></i></button>
                 <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.7">
             </div>
-            <div class="progress-container">
-                <div id="soundscape-progress" class="progress-bar"></div>
-            </div>
+            <div class="progress-container"><div id="soundscape-progress" class="progress-bar"></div></div>
             <p id="soundscape-timer">Time remaining: 90s</p>
             <button class="close-button" onclick="closePopup('soundscape')"><i class="fas fa-times"></i></button>
         </div>
@@ -147,110 +384,10 @@
             <h4>Punching Bag</h4>
             <p>Release your stress! Tap or click the bag to punch.</p>
             <div id="punching-bag">0</div>
-            <div class="progress-container">
-                <div id="punching-progress" class="progress-bar"></div>
-            </div>
+            <div class="progress-container"><div id="punching-progress" class="progress-bar"></div></div>
             <p id="punching-timer">Time remaining: 30s</p>
             <button class="close-button" onclick="closePopup('punching')"><i class="fas fa-times"></i></button>
         </div>
     </div>
     <div id="stretch-popup" class="popup">
-        <div class="popup-content">
-            <h4>Stretch</h4>
-            <p id="stretch-prompt">Stretch prompt will appear here...</p>
-            <div class="progress-container">
-                <div id="stretch-progress" class="progress-bar"></div>
-            </div>
-            <p id="stretch-timer">Time remaining: 60s</p>
-            <button class="close-button" onclick="closePopup('stretch')"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
-    <div id="doodle-popup" class="popup">
-        <div class="popup-content">
-            <h4>Doodle</h4>
-            <p>Let your creativity flow! Draw for 90 seconds.</p>
-            <div class="drawing-tools">
-                <input type="color" id="color-picker" value="#000000">
-                <input type="range" id="brush-size" min="1" max="20" value="5">
-            </div>
-            <canvas id="doodle-canvas" width="400" height="300"></canvas>
-            <div class="progress-container">
-                <div id="doodle-progress" class="progress-bar"></div>
-            </div>
-            <p id="doodle-timer">Time remaining: 90s</p>
-            <button class="action-button" onclick="saveDoodle()"><i class="fas fa-download"></i> Save Doodle</button>
-            <button class="action-button" onclick="clearCanvas()"><i class="fas fa-trash"></i> Clear</button>
-            <button class="close-button" onclick="closePopup('doodle')"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
-    <div id="worry-popup" class="popup">
-        <div class="popup-content">
-            <h4>Worry Shredder</h4>
-            <p>Write down a worry, then watch it get shredded away!</p>
-            <textarea id="worry-text" rows="3" placeholder="I'm worried about..."></textarea>
-            <div id="paper-strips-container"></div>
-            <button class="action-button" onclick="shredWorry()"><i class="fas fa-cut"></i> Shred Worry</button>
-            <button class="close-button" onclick="closePopup('worry')"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
-    <div id="color-popup" class="popup">
-        <div class="popup-content">
-            <h4>Color Focus</h4>
-            <p id="color-prompt">Focus on a color...</p>
-            <div id="color-square"></div>
-            <div class="progress-container">
-                <div id="color-progress" class="progress-bar"></div>
-            </div>
-            <p id="color-timer">Time remaining: 60s</p>
-            <button class="close-button" onclick="closePopup('color')"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
-    <div id="sudoku-popup" class="popup">
-        <div class="popup-content">
-            <h4>Sudoku</h4>
-            <p>Solve the puzzle by filling in the numbers!</p>
-            <div id="sudoku-grid"></div>
-            <div class="progress-container">
-                <div id="sudoku-progress" class="progress-bar"></div>
-            </div>
-            <p id="sudoku-timer">Time remaining: 90s</p>
-            <button class="close-button" onclick="closePopup('sudoku')"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
-    <div id="asmr-popup" class="popup">
-        <div class="popup-content">
-            <h4>ASMR</h4>
-            <p>Relax with soothing ASMR sounds</p>
-            <select id="asmr-select" class="sound-select">
-                <option value="tapping">Tapping</option>
-                <option value="whispering">Whispering</option>
-                <option value="brushing">Brushing</option>
-            </select>
-            <div class="audio-controls">
-                <button id="asmr-play-btn" class="audio-btn"><i class="fas fa-play"></i></button>
-                <input type="range" id="asmr-volume-slider" min="0" max="1" step="0.1" value="0.7">
-            </div>
-            <div class="progress-container">
-                <div id="asmr-progress" class="progress-bar"></div>
-            </div>
-            <p id="asmr-timer">Time remaining: 90s</p>
-            <button class="close-button" onclick="closePopup('asmr')"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
-
-    <!-- Audio elements -->
-    <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3"></audio>
-    <audio id="success-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
-    <audio id="punch-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-punch-with-a-hard-whistle-2054.mp3"></audio>
-    <audio id="shred-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-paper-ripping-1376.mp3"></audio>
-    <audio id="nature-sound" src="https://raw.githubusercontent.com/AIFuture180/mood-task-matcher/main/Spring%20Day%20Forest.mp3" loop></audio>
-    <audio id="rain-sound" src="https://raw.githubusercontent.com/AIFuture180/mood-task-matcher/main/Light%20Rain.mp3" loop></audio>
-    <audio id="waves-sound" src="https://raw.githubusercontent.com/AIFuture180/mood-task-matcher/main/Waves%20Crashing%20on%20Rock%20Beach.mp3" loop></audio>
-    <!-- Placeholder ASMR sounds -->
-    <audio id="tapping-sound" src="https://example.com/tapping.mp3" loop></audio>
-    <audio id="whispering-sound" src="https://example.com/whispering.mp3" loop></audio>
-    <audio id="brushing-sound" src="https://example.com/brushing.mp3" loop></audio>
-
-    <script src="script.js"></script>
-</body>
-</html>
+        <div class="popup
