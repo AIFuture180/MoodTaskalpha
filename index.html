@@ -739,15 +739,18 @@
             <h4>Soundscape</h4>
             <p>Relax with a calming soundscape</p>
             <select id="soundscape-select" class="sound-select">
-                <option value="nature">Forest Sounds</option>
-                <option value="rain">Gentle Rain</option>
+                <option value="lightrain">Light Rain</option>
+                <option value="chinese">Chinese Music</option>
+                <option value="forest">Forest Sounds</option>
                 <option value="waves">Ocean Waves</option>
+                <option value="temple">Temple Garden</option>
             </select>
             <div class="audio-controls">
                 <button id="play-btn" class="audio-btn"><i class="fas fa-play"></i></button>
                 <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.7">
             </div>
             <p class="affirmation" style="display: none;">Thank you for taking time to relax.</p>
+            <p id="soundscape-error" style="color: red; display: none;">Unable to load any sounds. Please try again later.</p>
             <button class="close-button" onclick="closePopup('soundscape')"><i class="fas fa-times"></i></button>
         </div>
     </div>
@@ -1254,43 +1257,107 @@
             const playBtn = document.getElementById('play-btn');
             const volumeSlider = document.getElementById('volume-slider');
             const affirmation = document.querySelector('#soundscape-popup .affirmation');
+            const errorMessage = document.getElementById('soundscape-error');
 
             const sounds = {
-                nature: 'https://cdn.pixabay.com/audio/2023/10/10/audio_1f7e8f6e6a.mp3', // Forest Sounds
-                rain: 'https://cdn.pixabay.com/audio/2023/10/10/audio_5b5f7e7e7b.mp3',   // Gentle Rain
-                waves: 'https://cdn.pixabay.com/audio/2023/10/10/audio_3f2e7e6e6c.mp3'   // Ocean Waves
+                lightrain: 'Light Rain.mp3',
+                chinese: 'Chinese music.mp3',
+                forest: 'Spring Day Forest.mp3',
+                waves: 'Waves Crashing on Rocky Beach.mp3',
+                temple: 'In the Temple Garden - Aaron Kenny.mp3'
             };
 
+            const soundKeys = Object.keys(sounds);
+            let availableSounds = [...soundKeys]; // Track available sounds
             affirmation.style.display = 'none';
+            errorMessage.style.display = 'none';
+            playBtn.disabled = true; // Disable play button until a sound is loaded
 
-            function loadAudio(soundKey) {
+            // Update the dropdown to only show available sounds
+            function updateSoundSelect() {
+                select.innerHTML = availableSounds.map(key => `<option value="${key}">${key === 'lightrain' ? 'Light Rain' : key === 'chinese' ? 'Chinese Music' : key === 'forest' ? 'Forest Sounds' : key === 'waves' ? 'Ocean Waves' : 'Temple Garden'}</option>`).join('');
+                if (availableSounds.length === 0) {
+                    select.disabled = true;
+                    playBtn.disabled = true;
+                    errorMessage.style.display = 'block';
+                } else {
+                    select.disabled = false;
+                    playBtn.disabled = false;
+                }
+            }
+
+            // Test if an audio file can be loaded
+            function canLoadAudio(audioUrl) {
+                return new Promise((resolve) => {
+                    const testAudio = new Audio(audioUrl);
+                    testAudio.oncanplaythrough = () => resolve(true);
+                    testAudio.onerror = () => resolve(false);
+                    testAudio.load();
+                });
+            }
+
+            // Load an audio file
+            async function loadAudio(soundKey) {
                 if (audio) {
                     audio.pause();
                     audio = null;
                 }
                 const audioUrl = sounds[soundKey];
+                console.log(`Attempting to load audio: ${audioUrl}`);
+
+                // Check if the file can be loaded
+                const canLoad = await canLoadAudio(audioUrl);
+                if (!canLoad) {
+                    console.error(`Cannot load audio file: ${audioUrl}`);
+                    availableSounds = availableSounds.filter(key => key !== soundKey);
+                    updateSoundSelect();
+                    if (availableSounds.length > 0) {
+                        const nextSound = availableSounds[0];
+                        select.value = nextSound;
+                        loadAudio(nextSound);
+                    }
+                    return false;
+                }
+
                 audio = new Audio(audioUrl);
                 audio.loop = true;
                 audio.volume = volumeSlider.value;
 
-                // Error handling for audio loading
-                audio.onerror = () => {
-                    alert(`Failed to load audio for ${select.options[select.selectedIndex].text}. Please check the audio URL or try a different sound. URL: ${audioUrl}`);
+                audio.onerror = (err) => {
+                    console.error(`Error loading audio file ${audioUrl}:`, err);
+                    console.log(`Audio error code: ${audio.error ? audio.error.code : 'Unknown'}`);
+                    console.log(`Audio error message: ${audio.error ? audio.error.message : 'Unknown error'}`);
+                    availableSounds = availableSounds.filter(key => key !== soundKey);
+                    updateSoundSelect();
+                    if (availableSounds.length > 0) {
+                        const nextSound = availableSounds[0];
+                        select.value = nextSound;
+                        loadAudio(nextSound);
+                    }
                 };
 
                 audio.oncanplaythrough = () => {
+                    console.log(`Audio ${audioUrl} loaded successfully.`);
+                    playBtn.disabled = false;
                     audio.play().catch(err => {
-                        console.error('Playback error:', err);
-                        alert('Error playing the audio. Please try again or select a different sound.');
+                        console.error(`Playback error for ${audioUrl}:`, err);
+                        alert(`Error playing the audio for ${select.options[select.selectedIndex].text}. Please try again or select a different sound.`);
                     });
                     playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 };
+
+                audio.onloadstart = () => {
+                    console.log(`Started loading audio: ${audioUrl}`);
+                };
+
+                return true;
             }
 
-            // Load the initial sound
+            // Initialize by loading the first available sound
             loadAudio(select.value);
 
             playBtn.onclick = () => {
+                if (!audio) return;
                 if (audio.paused) {
                     audio.play().catch(err => {
                         console.error('Playback error:', err);
@@ -1304,7 +1371,7 @@
             };
 
             volumeSlider.oninput = () => {
-                audio.volume = volumeSlider.value;
+                if (audio) audio.volume = volumeSlider.value;
             };
 
             select.onchange = () => {
