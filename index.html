@@ -751,6 +751,7 @@
             </div>
             <p class="affirmation" style="display: none;">Thank you for taking time to relax.</p>
             <p id="soundscape-error" style="color: red; display: none;">Unable to load any sounds. Please try again later.</p>
+            <p id="soundscape-specific-error" style="color: red; display: none;"></p>
             <button class="close-button" onclick="closePopup('soundscape')"><i class="fas fa-times"></i></button>
         </div>
     </div>
@@ -1258,6 +1259,7 @@
             const volumeSlider = document.getElementById('volume-slider');
             const affirmation = document.querySelector('#soundscape-popup .affirmation');
             const errorMessage = document.getElementById('soundscape-error');
+            const specificErrorMessage = document.getElementById('soundscape-specific-error');
 
             const sounds = {
                 lightrain: 'Light Rain.mp3',
@@ -1267,15 +1269,24 @@
                 temple: 'In the Temple Garden - Aaron Kenny.mp3'
             };
 
+            const soundNames = {
+                lightrain: 'Light Rain',
+                chinese: 'Chinese Music',
+                forest: 'Forest Sounds',
+                waves: 'Ocean Waves',
+                temple: 'Temple Garden'
+            };
+
             const soundKeys = Object.keys(sounds);
             let availableSounds = [...soundKeys]; // Track available sounds
             affirmation.style.display = 'none';
             errorMessage.style.display = 'none';
+            specificErrorMessage.style.display = 'none';
             playBtn.disabled = true; // Disable play button until a sound is loaded
 
             // Update the dropdown to only show available sounds
             function updateSoundSelect() {
-                select.innerHTML = availableSounds.map(key => `<option value="${key}">${key === 'lightrain' ? 'Light Rain' : key === 'chinese' ? 'Chinese Music' : key === 'forest' ? 'Forest Sounds' : key === 'waves' ? 'Ocean Waves' : 'Temple Garden'}</option>`).join('');
+                select.innerHTML = availableSounds.map(key => `<option value="${key}">${soundNames[key]}</option>`).join('');
                 if (availableSounds.length === 0) {
                     select.disabled = true;
                     playBtn.disabled = true;
@@ -1309,6 +1320,8 @@
                 const canLoad = await canLoadAudio(audioUrl);
                 if (!canLoad) {
                     console.error(`Cannot load audio file: ${audioUrl}`);
+                    specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
+                    specificErrorMessage.style.display = 'block';
                     availableSounds = availableSounds.filter(key => key !== soundKey);
                     updateSoundSelect();
                     if (availableSounds.length > 0) {
@@ -1327,6 +1340,8 @@
                     console.error(`Error loading audio file ${audioUrl}:`, err);
                     console.log(`Audio error code: ${audio.error ? audio.error.code : 'Unknown'}`);
                     console.log(`Audio error message: ${audio.error ? audio.error.message : 'Unknown error'}`);
+                    specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
+                    specificErrorMessage.style.display = 'block';
                     availableSounds = availableSounds.filter(key => key !== soundKey);
                     updateSoundSelect();
                     if (availableSounds.length > 0) {
@@ -1338,10 +1353,12 @@
 
                 audio.oncanplaythrough = () => {
                     console.log(`Audio ${audioUrl} loaded successfully.`);
+                    specificErrorMessage.style.display = 'none';
                     playBtn.disabled = false;
                     audio.play().catch(err => {
                         console.error(`Playback error for ${audioUrl}:`, err);
-                        alert(`Error playing the audio for ${select.options[select.selectedIndex].text}. Please try again or select a different sound.`);
+                        specificErrorMessage.textContent = `Error playing ${soundNames[soundKey]}. Please try again or select a different sound.`;
+                        specificErrorMessage.style.display = 'block';
                     });
                     playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 };
@@ -1361,7 +1378,8 @@
                 if (audio.paused) {
                     audio.play().catch(err => {
                         console.error('Playback error:', err);
-                        alert('Error playing the audio. Please try again.');
+                        specificErrorMessage.textContent = `Error playing ${soundNames[select.value]}. Please try again.`;
+                        specificErrorMessage.style.display = 'block';
                     });
                     playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 } else {
@@ -1375,6 +1393,7 @@
             };
 
             select.onchange = () => {
+                specificErrorMessage.style.display = 'none';
                 loadAudio(select.value);
             };
         }
@@ -1538,96 +1557,4 @@
                 timerText.textContent = `Time remaining: ${timeLeft}s`;
                 progressBar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
 
-                if (timeLeft % 10 === 0) {
-                    promptIndex = (promptIndex + 1) % prompts.length;
-                    prompt.textContent = prompts[promptIndex];
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(danceInterval);
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    prompt.style.display = 'none';
-                    document.querySelector('#dance-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        // Worry Shredder
-        function shredWorry() {
-            const worryText = document.getElementById('worry-text');
-            const container = document.getElementById('paper-strips-container');
-            if (!worryText.value.trim()) {
-                alert('Please write a worry to shred.');
-                return;
-            }
-
-            worryText.classList.add('shredding');
-            container.innerHTML = '';
-
-            for (let i = 0; i < 10; i++) {
-                const strip = document.createElement('div');
-                strip.style.position = 'absolute';
-                strip.style.width = '5px';
-                strip.style.height = '50px';
-                strip.style.background = '#ddd';
-                strip.style.left = `${i * 10}%`;
-                strip.style.animation = `shred ${0.5 + i * 0.1}s forwards`;
-                container.appendChild(strip);
-            }
-
-            setTimeout(() => {
-                worryText.value = '';
-                worryText.classList.remove('shredding');
-                container.innerHTML = '';
-                document.querySelector('#worry-popup .affirmation').style.display = 'block';
-            }, 1000);
-        }
-
-        // Color Focus
-        function startColorFocus() {
-            const square = document.getElementById('color-square');
-            const prompt = document.getElementById('color-prompt');
-            const timerText = document.getElementById('color-timer');
-            const progressBar = document.getElementById('color-progress');
-            let timeLeft = 60;
-
-            const colors = ['#68D391', '#48BB78', '#38A169'];
-            let colorIndex = 0;
-            square.style.backgroundColor = colors[colorIndex];
-            prompt.textContent = 'Focus on this color to calm your mind...';
-
-            const colorInterval = setInterval(() => {
-                timeLeft--;
-                timerText.textContent = `Time remaining: ${timeLeft}s`;
-                progressBar.style.width = `${(60 - timeLeft) / 60 * 100}%`;
-
-                if (timeLeft % 20 === 0) {
-                    colorIndex = (colorIndex + 1) % colors.length;
-                    square.style.backgroundColor = colors[colorIndex];
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(colorInterval);
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    prompt.style.display = 'none';
-                    square.style.display = 'none';
-                    document.querySelector('#color-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        // Save gratitude note
-        function saveGratitude() {
-            const gratitudeText = document.getElementById('gratitude-text');
-            if (!gratitudeText.value.trim()) {
-                alert('Please write something you’re grateful for.');
-                return;
-            }
-            gratitudeText.value = '';
-            document.querySelector('#gratitude-popup .affirmation').style.display = 'block';
-        }
-    </script>
-</body>
-</html>
+                if (timeLeft % 10
