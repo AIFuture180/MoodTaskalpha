@@ -467,7 +467,7 @@
             border-radius: 5px;
             transition: width 1s linear;
         }
-        #breathing-instruction, #punching-timer, #stretch-timer, #doodle-timer, #dance-timer, #color-timer {
+        #breathing-instruction, #punching-timer, #doodle-timer, #dance-timer {
             margin: 10px 0;
             font-size: 0.9em;
         }
@@ -477,6 +477,9 @@
             border: 1px solid #ddd;
             margin: 10px 0;
             width: 200px;
+        }
+        .sound-select option[disabled] {
+            color: #999;
         }
         .audio-controls {
             display: flex;
@@ -543,7 +546,21 @@
             margin: 10px 0;
             resize: none;
         }
-        .action-button {
+        #gratitude-history {
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 0.9em;
+            color: #555;
+        }
+        #gratitude-history p {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        .action-button, .next-button {
             background: #2C3E50;
             color: #fff;
             padding: 8px 15px;
@@ -554,6 +571,10 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+        }
+        .next-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
         #paper-strips-container {
             position: relative;
@@ -737,6 +758,7 @@
             <p>Write down something you're grateful for:</p>
             <textarea id="gratitude-text" rows="3" placeholder="Today I'm grateful for..."></textarea>
             <button class="action-button" onclick="saveGratitude()"><i class="fas fa-save"></i> Save Gratitude</button>
+            <div id="gratitude-history"></div>
             <p class="affirmation">Your gratitude note has been saved successfully.</p>
             <button class="close-button" onclick="closePopup('gratitude')"><i class="fas fa-times"></i></button>
         </div>
@@ -777,8 +799,7 @@
         <div class="popup-content">
             <h4>Stretch</h4>
             <p id="stretch-prompt">Stretch prompt will appear here...</p>
-            <div class="progress-container"><div id="stretch-progress" class="progress-bar"></div></div>
-            <p id="stretch-timer">Time remaining: 60s</p>
+            <button class="next-button" onclick="nextStretch()"><i class="fas fa-arrow-right"></i> Next Stretch</button>
             <p class="affirmation">Your body appreciates this care.</p>
             <button class="close-button" onclick="closePopup('stretch')"><i class="fas fa-times"></i></button>
         </div>
@@ -827,8 +848,7 @@
             <h4>Color Focus</h4>
             <p id="color-prompt">Focus on this color to calm your mind...</p>
             <div id="color-square"></div>
-            <div class="progress-container"><div id="color-progress" class="progress-bar"></div></div>
-            <p id="color-timer">Time remaining: 60s</p>
+            <button class="next-button" onclick="nextColor()"><i class="fas fa-arrow-right"></i> Next Color</button>
             <p class="affirmation">Thank you for taking a moment to focus.</p>
             <button class="close-button" onclick="closePopup('color')"><i class="fas fa-times"></i></button>
         </div>
@@ -1189,6 +1209,7 @@
             popup.style.display = 'flex';
 
             if (tool === 'breathing') startBreathingExercise();
+            if (tool === 'gratitude') loadGratitudeHistory();
             if (tool === 'soundscape') initSoundscape();
             if (tool === 'punching') initPunchingBag();
             if (tool === 'stretch') startStretch();
@@ -1256,6 +1277,57 @@
             }, 1000);
         }
 
+        // Gratitude Note with History
+        function clearGratitudeOnSunday() {
+            const today = new Date();
+            if (today.getDay() === 0) { // Sunday
+                localStorage.removeItem('gratitudeHistory');
+            }
+        }
+
+        function saveGratitude() {
+            const gratitudeText = document.getElementById('gratitude-text').value.trim();
+            if (!gratitudeText) return;
+
+            clearGratitudeOnSunday();
+
+            const now = new Date();
+            const timestamp = now.toLocaleString();
+            let history = JSON.parse(localStorage.getItem('gratitudeHistory')) || [];
+
+            // Add new gratitude note
+            history.push({ text: gratitudeText, timestamp });
+
+            // Filter notes within the last 7 days
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            history = history.filter(entry => new Date(entry.timestamp) >= sevenDaysAgo);
+
+            // Save to localStorage
+            localStorage.setItem('gratitudeHistory', JSON.stringify(history));
+
+            // Update display and show affirmation
+            loadGratitudeHistory();
+            document.getElementById('gratitude-text').value = '';
+            document.querySelector('#gratitude-popup .affirmation').style.display = 'block';
+        }
+
+        function loadGratitudeHistory() {
+            clearGratitudeOnSunday();
+
+            const historyDiv = document.getElementById('gratitude-history');
+            const history = JSON.parse(localStorage.getItem('gratitudeHistory')) || [];
+            
+            if (history.length === 0) {
+                historyDiv.innerHTML = '<p>No gratitude notes yet.</p>';
+                return;
+            }
+
+            historyDiv.innerHTML = '<h5>Past 7 Days:</h5>' + history.map(entry => `
+                <p><strong>${entry.timestamp}</strong>: ${entry.text}</p>
+            `).join('');
+        }
+
         // Soundscape
         let audio;
         function initSoundscape() {
@@ -1270,7 +1342,7 @@
                 lightrain: 'Light Rain.mp3',
                 chinese: 'Chinese music.mp3',
                 forest: 'Spring Day Forest.mp3',
-                waves: 'Waves Crashing on Rocky Beach.mp3',
+                waves: 'Ocean Waves.mp3',
                 temple: 'In the Temple Garden - Aaron Kenny.mp3'
             };
 
@@ -1283,22 +1355,32 @@
             };
 
             const soundKeys = Object.keys(sounds);
-            let availableSounds = [...soundKeys]; // Track available sounds
+            // Track load status for each sound
+            const soundStatus = {};
+            soundKeys.forEach(key => {
+                soundStatus[key] = { loaded: false, attempted: false };
+            });
+
             affirmation.style.display = 'none';
             errorMessage.style.display = 'none';
             specificErrorMessage.style.display = 'none';
-            playBtn.disabled = true; // Disable play button until a sound is loaded
+            playBtn.disabled = true;
 
-            // Update the dropdown to only show available sounds
+            // Update the dropdown to reflect load status
             function updateSoundSelect() {
-                select.innerHTML = availableSounds.map(key => `<option value="${key}">${soundNames[key]}</option>`).join('');
-                if (availableSounds.length === 0) {
+                select.innerHTML = soundKeys.map(key => {
+                    const isLoaded = soundStatus[key].loaded;
+                    const label = soundStatus[key].attempted && !isLoaded ? `${soundNames[key]} [Unavailable]` : soundNames[key];
+                    return `<option value="${key}" ${isLoaded ? '' : 'disabled'}>${label}</option>`;
+                }).join('');
+                // Ensure a loaded sound is selected
+                const firstAvailable = soundKeys.find(key => soundStatus[key].loaded);
+                if (firstAvailable) {
+                    select.value = firstAvailable;
+                } else {
                     select.disabled = true;
                     playBtn.disabled = true;
                     errorMessage.style.display = 'block';
-                } else {
-                    select.disabled = false;
-                    playBtn.disabled = false;
                 }
             }
 
@@ -1321,18 +1403,48 @@
                 const audioUrl = sounds[soundKey];
                 console.log(`Attempting to load audio: ${audioUrl}`);
 
-                // Check if the file can be loaded
+                // Skip if already attempted
+                if (soundStatus[soundKey].attempted) {
+                    if (soundStatus[soundKey].loaded) {
+                        audio = new Audio(audioUrl);
+                        audio.loop = true;
+                        audio.volume = volumeSlider.value;
+                        audio.oncanplaythrough = () => {
+                            console.log(`Audio ${audioUrl} loaded successfully.`);
+                            specificErrorMessage.style.display = 'none';
+                            playBtn.disabled = false;
+                            audio.play().catch(err => {
+                                console.error(`Playback error for ${audioUrl}:`, err);
+                                specificErrorMessage.textContent = `Error playing ${soundNames[soundKey]}. Please try again or select a different sound.`;
+                                specificErrorMessage.style.display = 'block';
+                            });
+                            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        };
+                    } else {
+                        specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
+                        specificErrorMessage.style.display = 'block';
+                        const nextAvailable = soundKeys.find(key => soundStatus[key].loaded);
+                        if (nextAvailable) {
+                            select.value = nextAvailable;
+                            loadAudio(nextAvailable);
+                        }
+                    }
+                    return;
+                }
+
+                soundStatus[soundKey].attempted = true;
                 const canLoad = await canLoadAudio(audioUrl);
+                soundStatus[soundKey].loaded = canLoad;
+
                 if (!canLoad) {
                     console.error(`Cannot load audio file: ${audioUrl}`);
                     specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
                     specificErrorMessage.style.display = 'block';
-                    availableSounds = availableSounds.filter(key => key !== soundKey);
                     updateSoundSelect();
-                    if (availableSounds.length > 0) {
-                        const nextSound = availableSounds[0];
-                        select.value = nextSound;
-                        loadAudio(nextSound);
+                    const nextAvailable = soundKeys.find(key => soundStatus[key].loaded);
+                    if (nextAvailable) {
+                        select.value = nextAvailable;
+                        loadAudio(nextAvailable);
                     }
                     return false;
                 }
@@ -1345,19 +1457,20 @@
                     console.error(`Error loading audio file ${audioUrl}:`, err);
                     console.log(`Audio error code: ${audio.error ? audio.error.code : 'Unknown'}`);
                     console.log(`Audio error message: ${audio.error ? audio.error.message : 'Unknown error'}`);
+                    soundStatus[soundKey].loaded = false;
                     specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
                     specificErrorMessage.style.display = 'block';
-                    availableSounds = availableSounds.filter(key => key !== soundKey);
                     updateSoundSelect();
-                    if (availableSounds.length > 0) {
-                        const nextSound = availableSounds[0];
-                        select.value = nextSound;
-                        loadAudio(nextSound);
+                    const nextAvailable = soundKeys.find(key => soundStatus[key].loaded);
+                    if (nextAvailable) {
+                        select.value = nextAvailable;
+                        loadAudio(nextAvailable);
                     }
                 };
 
                 audio.oncanplaythrough = () => {
                     console.log(`Audio ${audioUrl} loaded successfully.`);
+                    soundStatus[soundKey].loaded = true;
                     specificErrorMessage.style.display = 'none';
                     playBtn.disabled = false;
                     audio.play().catch(err => {
@@ -1372,11 +1485,32 @@
                     console.log(`Started loading audio: ${audioUrl}`);
                 };
 
+                updateSoundSelect();
                 return true;
             }
 
-            // Initialize by loading the first available sound
-            loadAudio(select.value);
+            // Preload all sounds to determine their status
+            async function preloadSounds() {
+                for (let key of soundKeys) {
+                    if (!soundStatus[key].attempted) {
+                        soundStatus[key].attempted = true;
+                        const canLoad = await canLoadAudio(sounds[key]);
+                        soundStatus[key].loaded = canLoad;
+                        if (!canLoad) {
+                            console.error(`Cannot load audio file: ${sounds[key]}`);
+                        }
+                    }
+                }
+                updateSoundSelect();
+            }
+
+            // Initialize by preloading all sounds, then load the first available one
+            preloadSounds().then(() => {
+                // Explicitly set the initial sound to "lightrain"
+                const initialSound = 'lightrain';
+                select.value = initialSound;
+                loadAudio(initialSound);
+            });
 
             playBtn.onclick = () => {
                 if (!audio) return;
@@ -1441,39 +1575,39 @@
         }
 
         // Stretch
+        let stretchIndex = 0;
+        const stretches = [
+            { prompt: 'Neck Stretch: Gently tilt your head to the right, bringing your ear toward your shoulder. Hold for 15 seconds, then switch to the left side.', duration: 15 },
+            { prompt: 'Shoulder Roll: Roll your shoulders forward in a circular motion 5 times, then backward 5 times.', duration: 0 },
+            { prompt: 'Seated Forward Bend: Sit with legs extended, reach forward toward your toes, and hold for 20 seconds.', duration: 20 },
+            { prompt: 'Chest Opener: Clasp your hands behind your back, lift your arms slightly, and hold for 15 seconds to open your chest.', duration: 15 },
+            { prompt: 'Side Stretch: Raise your right arm overhead, lean to the left, and hold for 15 seconds. Repeat on the other side.', duration: 15 }
+        ];
+
         function startStretch() {
+            stretchIndex = 0;
+            updateStretch();
+        }
+
+        function updateStretch() {
             const prompt = document.getElementById('stretch-prompt');
-            const timerText = document.getElementById('stretch-timer');
-            const progressBar = document.getElementById('stretch-progress');
-            let timeLeft = 60;
+            const nextButton = document.querySelector('#stretch-popup .next-button');
+            const affirmation = document.querySelector('#stretch-popup .affirmation');
 
-            const stretches = [
-                'Reach your arms up and stretch towards the sky.',
-                'Touch your toes and feel the stretch in your hamstrings.',
-                'Stretch your arms across your body to open your shoulders.'
-            ];
+            if (stretchIndex < stretches.length) {
+                prompt.textContent = stretches[stretchIndex].prompt;
+                nextButton.disabled = false;
+                affirmation.style.display = 'none';
+            } else {
+                prompt.textContent = 'You’ve completed all stretches!';
+                nextButton.disabled = true;
+                affirmation.style.display = 'block';
+            }
+        }
 
-            let stretchIndex = 0;
-            prompt.textContent = stretches[stretchIndex];
-
-            const stretchInterval = setInterval(() => {
-                timeLeft--;
-                timerText.textContent = `Time remaining: ${timeLeft}s`;
-                progressBar.style.width = `${(60 - timeLeft) / 60 * 100}%`;
-
-                if (timeLeft % 20 === 0) {
-                    stretchIndex = (stretchIndex + 1) % stretches.length;
-                    prompt.textContent = stretches[stretchIndex];
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(stretchInterval);
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    prompt.style.display = 'none';
-                    document.querySelector('#stretch-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
+        function nextStretch() {
+            stretchIndex++;
+            updateStretch();
         }
 
         // Doodle
@@ -1585,72 +1719,14 @@
 
             worryText.classList.add('shredding');
             container.innerHTML = '';
-            for (let i = 0; i < 5; i++) {
+
+            const strips = 10;
+            for (let i = 0; i < strips; i++) {
                 const strip = document.createElement('div');
                 strip.style.position = 'absolute';
                 strip.style.width = '10px';
                 strip.style.height = '50px';
                 strip.style.background = '#ddd';
-                strip.style.left = `${i * 15 + 50}px`;
-                strip.style.animation = `shred 0.5s forwards ${i * 0.1}s`;
+                strip.style.left = `${(i * 10)}px`;
+                strip.style.animation = `shred 0.5s forwards ${i * 0.05}s`;
                 container.appendChild(strip);
-            }
-            setTimeout(() => {
-                worryText.value = '';
-                worryText.classList.remove('shredding');
-                document.querySelector('#worry-popup .affirmation').style.display = 'block';
-            }, 1000);
-        }
-
-        // Color Focus
-        function startColorFocus() {
-            const square = document.getElementById('color-square');
-            const prompt = document.getElementById('color-prompt');
-            const timerText = document.getElementById('color-timer');
-            const progressBar = document.getElementById('color-progress');
-            let timeLeft = 60;
-
-            const colors = [
-                { name: 'Soft Blue', hex: '#A3BFFA', message: 'Focus on this soft blue to calm your mind...' },
-                { name: 'Gentle Green', hex: '#B2F5EA', message: 'Focus on this gentle green to feel refreshed...' },
-                { name: 'Warm Yellow', hex: '#FEF9C3', message: 'Focus on this warm yellow to feel uplifted...' }
-            ];
-
-            let colorIndex = 0;
-            square.style.backgroundColor = colors[colorIndex].hex;
-            prompt.textContent = colors[colorIndex].message;
-
-            const colorInterval = setInterval(() => {
-                timeLeft--;
-                timerText.textContent = `Time remaining: ${timeLeft}s`;
-                progressBar.style.width = `${(60 - timeLeft) / 60 * 100}%`;
-
-                if (timeLeft % 20 === 0) {
-                    colorIndex = (colorIndex + 1) % colors.length;
-                    square.style.backgroundColor = colors[colorIndex].hex;
-                    prompt.textContent = colors[colorIndex].message;
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(colorInterval);
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    prompt.style.display = 'none';
-                    square.style.display = 'none';
-                    document.querySelector('#color-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        // Gratitude Note
-        function saveGratitude() {
-            const gratitudeText = document.getElementById('gratitude-text');
-            if (gratitudeText.value.trim()) {
-                localStorage.setItem('gratitude-' + Date.now(), gratitudeText.value);
-                gratitudeText.value = '';
-                document.querySelector('#gratitude-popup .affirmation').style.display = 'block';
-            }
-        }
-    </script>
-</body>
-</html>
