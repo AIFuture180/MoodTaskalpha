@@ -128,9 +128,15 @@
         .activities-header {
             font-size: 1.5em;
             color: #2C3E50;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             text-align: center;
             font-weight: 600;
+        }
+        .user-mood {
+            font-size: 0.9em;
+            color: #555;
+            text-align: center;
+            margin-bottom: 20px;
         }
         .activity-cards {
             margin: 0 auto;
@@ -636,6 +642,7 @@
             </div>
             <div id="activities-section">
                 <div class="activities-header"></div>
+                <div class="user-mood"></div>
                 <div class="activity-cards"></div>
             </div>
         </div>
@@ -1108,19 +1115,21 @@
             const moodText = document.getElementById('mood-text');
             const activitiesSection = document.getElementById('activities-section');
             const activitiesHeader = activitiesSection.querySelector('.activities-header');
+            const userMoodDisplay = activitiesSection.querySelector('.user-mood');
             const activityCards = activitiesSection.querySelector('.activity-cards');
             const toolsContainer = document.getElementById('tools-container');
 
-            let moodInput = moodText.value.trim().toLowerCase();
+            let moodInput = moodText.value.trim();
             if (!moodInput) {
-                alert('Please enter a mood.');
-                return;
+                // If no mood is entered, default to a generic mood (e.g., "happy")
+                moodInput = "happy";
             }
+            const moodInputLower = moodInput.toLowerCase();
 
-            let matchedMood = Object.keys(moodTasks).find(mood => mood === moodInput);
+            let matchedMood = Object.keys(moodTasks).find(mood => mood === moodInputLower);
             if (!matchedMood) {
                 for (let mood in moodSynonyms) {
-                    if (moodSynonyms[mood].includes(moodInput)) {
+                    if (moodSynonyms[mood].includes(moodInputLower)) {
                         matchedMood = mood;
                         break;
                     }
@@ -1131,45 +1140,41 @@
                 let minDistance = Infinity;
                 let closestMood = null;
                 for (let mood in moodTasks) {
-                    const distance = levenshtein(mood, moodInput);
+                    const distance = levenshtein(mood, moodInputLower);
                     if (distance < minDistance) {
                         minDistance = distance;
                         closestMood = mood;
                     }
                     for (let synonym of moodSynonyms[mood]) {
-                        const dist = levenshtein(synonym, moodInput);
+                        const dist = levenshtein(synonym, moodInputLower);
                         if (dist < minDistance) {
                             minDistance = dist;
                             closestMood = mood;
                         }
                     }
                 }
-                if (minDistance <= 3) {
-                    matchedMood = closestMood;
-                }
+                matchedMood = closestMood || "happy"; // Default to "happy" if no close match is found
             }
 
-            if (matchedMood && moodTasks[matchedMood]) {
-                activitiesHeader.textContent = `Recommendations for ${matchedMood.charAt(0).toUpperCase() + matchedMood.slice(1)} Mood:`;
-                activityCards.innerHTML = '<ul>' + moodTasks[matchedMood].map((task, index) => `
-                    <li onclick="toggleExplanation(${index})">
-                        <div class="activity-item">
-                            <i class="fas ${task.icon}"></i>
-                            <span class="activity-title">${task.title}</span>
-                            ${task.tool ? `<button class="activity-button" onclick="event.stopPropagation(); openPopup('${task.tool}')"><i class="fas fa-play"></i> Try Now</button>` : ''}
-                        </div>
-                        <div class="explanation" id="explanation-${index}">${task.explanation}</div>
-                    </li>
-                `).join('') + '</ul>';
+            // Display recommendations with the matched mood and show the user's input
+            activitiesHeader.textContent = `Recommendations for ${matchedMood.charAt(0).toUpperCase() + matchedMood.slice(1)} Mood:`;
+            userMoodDisplay.textContent = `You entered '${moodInput}'`;
+            activityCards.innerHTML = '<ul>' + moodTasks[matchedMood].map((task, index) => `
+                <li onclick="toggleExplanation(${index})">
+                    <div class="activity-item">
+                        <i class="fas ${task.icon}"></i>
+                        <span class="activity-title">${task.title}</span>
+                        ${task.tool ? `<button class="activity-button" onclick="event.stopPropagation(); openPopup('${task.tool}')"><i class="fas fa-play"></i> Try Now</button>` : ''}
+                    </div>
+                    <div class="explanation" id="explanation-${index}">${task.explanation}</div>
+                </li>
+            `).join('') + '</ul>';
 
-                activitiesSection.classList.add('show');
-                toolsContainer.style.display = 'grid';
-                moodText.value = '';
+            activitiesSection.classList.add('show');
+            toolsContainer.style.display = 'grid';
+            moodText.value = '';
 
-                gtag('event', 'mood_submitted', { mood: matchedMood });
-            } else {
-                alert('Sorry, I couldn’t find a match for that mood. Try another, like "tired," "stressed," or "sad."');
-            }
+            gtag('event', 'mood_submitted', { mood: matchedMood, user_input: moodInput });
         }
 
         // Toggle explanation visibility
@@ -1557,4 +1562,95 @@
                 timerText.textContent = `Time remaining: ${timeLeft}s`;
                 progressBar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
 
-                if (timeLeft % 10
+                if (timeLeft % 10 === 0) {
+                    promptIndex = (promptIndex + 1) % prompts.length;
+                    prompt.textContent = prompts[promptIndex];
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(danceInterval);
+                    timerText.style.display = 'none';
+                    progressBar.style.display = 'none';
+                    prompt.style.display = 'none';
+                    document.querySelector('#dance-popup .affirmation').style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        // Worry Shredder
+        function shredWorry() {
+            const worryText = document.getElementById('worry-text');
+            const container = document.getElementById('paper-strips-container');
+            if (!worryText.value.trim()) return;
+
+            worryText.classList.add('shredding');
+            container.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const strip = document.createElement('div');
+                strip.style.position = 'absolute';
+                strip.style.width = '10px';
+                strip.style.height = '50px';
+                strip.style.background = '#ddd';
+                strip.style.left = `${i * 15 + 50}px`;
+                strip.style.animation = `shred 0.5s forwards ${i * 0.1}s`;
+                container.appendChild(strip);
+            }
+            setTimeout(() => {
+                worryText.value = '';
+                worryText.classList.remove('shredding');
+                document.querySelector('#worry-popup .affirmation').style.display = 'block';
+            }, 1000);
+        }
+
+        // Color Focus
+        function startColorFocus() {
+            const square = document.getElementById('color-square');
+            const prompt = document.getElementById('color-prompt');
+            const timerText = document.getElementById('color-timer');
+            const progressBar = document.getElementById('color-progress');
+            let timeLeft = 60;
+
+            const colors = [
+                { name: 'Soft Blue', hex: '#A3BFFA', message: 'Focus on this soft blue to calm your mind...' },
+                { name: 'Gentle Green', hex: '#B2F5EA', message: 'Focus on this gentle green to feel refreshed...' },
+                { name: 'Warm Yellow', hex: '#FEF9C3', message: 'Focus on this warm yellow to feel uplifted...' }
+            ];
+
+            let colorIndex = 0;
+            square.style.backgroundColor = colors[colorIndex].hex;
+            prompt.textContent = colors[colorIndex].message;
+
+            const colorInterval = setInterval(() => {
+                timeLeft--;
+                timerText.textContent = `Time remaining: ${timeLeft}s`;
+                progressBar.style.width = `${(60 - timeLeft) / 60 * 100}%`;
+
+                if (timeLeft % 20 === 0) {
+                    colorIndex = (colorIndex + 1) % colors.length;
+                    square.style.backgroundColor = colors[colorIndex].hex;
+                    prompt.textContent = colors[colorIndex].message;
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(colorInterval);
+                    timerText.style.display = 'none';
+                    progressBar.style.display = 'none';
+                    prompt.style.display = 'none';
+                    square.style.display = 'none';
+                    document.querySelector('#color-popup .affirmation').style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        // Gratitude Note
+        function saveGratitude() {
+            const gratitudeText = document.getElementById('gratitude-text');
+            if (gratitudeText.value.trim()) {
+                localStorage.setItem('gratitude-' + Date.now(), gratitudeText.value);
+                gratitudeText.value = '';
+                document.querySelector('#gratitude-popup .affirmation').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
