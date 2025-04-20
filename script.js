@@ -492,11 +492,11 @@ function setupSoundscape() {
     specificErrorMsg.style.display = 'none';
 
     const sounds = {
-        lightrain: 'https://www.dropbox.com/scl/fi/42k6f2f5z4p5gbdh2d3om/lightrain.mp3?rlkey=8u9x5p5k2h5j5x5v5k5q5z5n5&raw=1',
-        chinese: 'https://www.dropbox.com/scl/fi/5k5q5z5n5u9x5p5k2h5j5/chinese.mp3?rlkey=2d3om42k6f2f5z4p5gbdh5x5v&raw=1',
-        forest: 'https://www.dropbox.com/scl/fi/2h5j5x5v5k5q5z5n5u9x5p/forest.mp3?rlkey=42k6f2f5z4p5gbdh5k5q5z5n5&raw=1',
-        waves: 'https://www.dropbox.com/scl/fi/5z4p5gbdh5k5q5z5n5u9x5p/waves.mp3?rlkey=2h5j5x5v5k5q5z5n5u9x5p5k2&raw=1',
-        temple: 'https://www.dropbox.com/scl/fi/5k5q5z5n5u9x5p5k2h5j5x/temple.mp3?rlkey=42k6f2f5z4p5gbdh5k5q5z5n5&raw=1'
+        lightrain: 'Spring_Day_Forest.mp3',
+        chinese: 'chinese_music.mp3',
+        forest: 'Spring_Day_Forest.mp3',
+        waves: 'Ocean_Waves.mp3',
+        temple: 'In_the_Temple_Garden_-_Aaron_Kenny.mp3'
     };
 
     playBtn.onclick = () => {
