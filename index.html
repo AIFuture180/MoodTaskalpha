@@ -849,7 +849,7 @@
             return matrix[b.length][a.length];
         }
 
-        // Mood to task mappings
+        // Mood to task mappings with soundscape-specific recommendations
         const moodTasks = {
             tired: {
                 suggestions: [
@@ -871,7 +871,27 @@
                         tool: 'stretch',
                         explanation: 'Neuroscientist Lisa Feldman Barrett highlights that bodily movement can shift emotional states. A short stretch increases blood flow and endorphins, helping to counteract the low-energy state of tiredness by signaling alertness to the brain.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Walk Visualization',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'The forest sounds can help you visualize a peaceful walk through nature, grounding you and reducing fatigue by engaging your senses in a restorative way.'
+                    },
+                    rain: {
+                        title: 'Rainy Day Rest',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain sounds promote relaxation. Imagine resting by a window on a rainy day, allowing your mind to slow down and recover from tiredness.'
+                    },
+                    waves: {
+                        title: 'Ocean Breathing Sync',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can guide your breathing rhythm. Sync your inhales and exhales with the waves to calm your nervous system and boost energy.'
+                    }
+                }
             },
             stressed: {
                 suggestions: [
@@ -893,7 +913,27 @@
                         tool: 'gratitude',
                         explanation: 'Psychologist Kristin Neff suggests practicing self-compassion during stress. Reflecting on self-kindness reduces self-criticism—a common stress amplifier—by fostering a sense of emotional safety and reducing anxiety.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Grounding',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can ground you in nature, reducing stress by engaging your senses and pulling you away from overthinking.'
+                    },
+                    rain: {
+                        title: 'Rain Meditation',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain fosters a meditative state. Let the sound wash away stress as you focus on the rhythm, calming your mind.'
+                    },
+                    waves: {
+                        title: 'Ocean Wave Reset',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can reset your stress response. Focus on the sound to slow your breathing and calm your nervous system.'
+                    }
+                }
             },
             sad: {
                 suggestions: [
@@ -915,7 +955,27 @@
                         tool: 'gratitude',
                         explanation: 'Andrew Huberman discusses how gratitude practices can increase dopamine and serotonin levels in the brain. Reflecting on something you’re grateful for can counteract sadness by enhancing the brain’s reward system.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Emotional Healing',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can evoke a sense of peace, helping you process sadness by connecting with the calming presence of nature.'
+                    },
+                    rain: {
+                        title: 'Rainy Reflection',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain can create a safe space for emotional reflection, allowing you to sit with your sadness and gradually feel lighter.'
+                    },
+                    waves: {
+                        title: 'Ocean Emotional Flow',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can symbolize emotional flow. Let the sound guide you to release sadness and embrace a sense of renewal.'
+                    }
+                }
             },
             angry: {
                 suggestions: [
@@ -937,7 +997,27 @@
                         tool: null,
                         explanation: 'Lisa Feldman Barrett’s work on emotional construction emphasizes reframing anger. Instead of labeling the feeling as anger, try to see it as energy or frustration, which can reduce its intensity by altering how your brain interprets the emotion.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Anger Release',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can help you release anger by grounding you in a peaceful environment, allowing the tension to dissipate naturally.'
+                    },
+                    rain: {
+                        title: 'Rain Emotional Cooling',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain can cool your emotional state, helping you let go of anger by focusing on the soothing rhythm of the sound.'
+                    },
+                    waves: {
+                        title: 'Ocean Wave Calming',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can calm your anger. Let the rhythmic sound guide your breathing and reduce the intensity of your emotions.'
+                    }
+                }
             },
             anxious: {
                 suggestions: [
@@ -959,7 +1039,27 @@
                         tool: null,
                         explanation: 'Lisa Feldman Barrett’s insights on emotion suggest that shifting focus to sensory input can change emotional states. The 5-4-3-2-1 technique (naming 5 things you see, 4 you can touch, etc.) grounds you, reducing anxiety by engaging the prefrontal cortex.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Anxiety Grounding',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can ground you, reducing anxiety by immersing you in a natural, calming environment that distracts from racing thoughts.'
+                    },
+                    rain: {
+                        title: 'Rain Anxiety Soothe',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain can soothe anxiety. Focus on the steady sound to calm your mind and reduce overthinking.'
+                    },
+                    waves: {
+                        title: 'Ocean Wave Anxiety Release',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can help release anxiety. Let the rhythmic sound anchor your breathing and bring a sense of calm.'
+                    }
+                }
             },
             bored: {
                 suggestions: [
@@ -981,7 +1081,27 @@
                         tool: 'dance',
                         explanation: 'Kelly McGonigal, a health psychologist, notes that physical movement like dancing can shift your emotional state by releasing endorphins. This helps alleviate boredom by energizing your body and mind, making you feel more engaged.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Inspiration',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can inspire creativity, helping you overcome boredom by immersing you in a natural setting that sparks imagination.'
+                    },
+                    rain: {
+                        title: 'Rainy Day Imagination',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain can stimulate your imagination. Use the sound as a backdrop to daydream or think of new ideas to combat boredom.'
+                    },
+                    waves: {
+                        title: 'Ocean Wave Energy',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can energize you. Let the sound motivate you to get up and engage in a new activity to break the boredom.'
+                    }
+                }
             },
             happy: {
                 suggestions: [
@@ -1003,7 +1123,27 @@
                         tool: 'dance',
                         explanation: 'Kelly McGonigal highlights that movement, such as dancing, can amplify positive emotions. Celebrating happiness through dance reinforces the brain’s reward system, making the joyful state more vivid and memorable.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Joy Amplification',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can amplify your happiness by connecting you with nature, enhancing your joyful mood with a sense of peace.'
+                    },
+                    rain: {
+                        title: 'Rainy Day Celebration',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain can add a cozy vibe to your happiness. Celebrate your joy by relaxing with the sound of rain.'
+                    },
+                    waves: {
+                        title: 'Ocean Wave Happiness Flow',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can enhance your happiness. Let the sound flow with your joy, making the moment even more uplifting.'
+                    }
+                }
             },
             worried: {
                 suggestions: [
@@ -1025,7 +1165,27 @@
                         tool: 'color',
                         explanation: 'Neuroscientist Andrew Huberman notes that visualization can calm the nervous system. Focusing on a soothing color or image engages the parasympathetic nervous system, reducing worry by lowering physiological arousal.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Worry Grounding',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can ground you, helping to ease worry by immersing you in a natural, calming environment.'
+                    },
+                    rain: {
+                        title: 'Rain Worry Release',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain can help release worry. Let the sound wash away your concerns, bringing a sense of calm.'
+                    },
+                    waves: {
+                        title: 'Ocean Wave Worry Flow',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can help your worries flow away. Focus on the rhythmic sound to anchor yourself and reduce anxiety.'
+                    }
+                }
             },
             overwhelmed: {
                 suggestions: [
@@ -1047,7 +1207,27 @@
                         tool: 'color',
                         explanation: 'Jon Kabat-Zinn’s mindfulness techniques emphasize pausing to reset. Focusing on a calming color grounds you in the present, reducing the mental clutter of overwhelm by engaging the brain’s sensory focus.'
                     }
-                ]
+                ],
+                soundscape: {
+                    nature: {
+                        title: 'Forest Clarity Break',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Forest sounds can provide a mental break, helping you regain clarity and reduce overwhelm by immersing you in nature.'
+                    },
+                    rain: {
+                        title: 'Rain Mental Reset',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Gentle rain can reset your mind. Let the sound clear away overwhelm, bringing a sense of calm and focus.'
+                    },
+                    waves: {
+                        title: 'Ocean Wave Mental Flow',
+                        icon: 'fa-volume-up',
+                        tool: 'soundscape',
+                        explanation: 'Ocean waves can help your thoughts flow more calmly, reducing overwhelm by anchoring you with their rhythm.'
+                    }
+                }
             }
         };
 
@@ -1063,6 +1243,9 @@
             worried: ['concerned', 'anxious', 'nervous', 'uneasy', 'apprehensive'],
             overwhelmed: ['swamped', 'burdened', 'stressed', 'flooded']
         };
+
+        // Track the current soundscape selection
+        let currentSoundscape = null;
 
         // Submit mood and generate recommendations
         function submitMood() {
@@ -1119,8 +1302,19 @@
 
             if (matchedMood && moodTasks[matchedMood]) {
                 console.log('Matched mood:', matchedMood);
-                activitiesHeader.innerHTML = `Recommendations for when you're feeling <strong>${matchedMood}</strong>:`;
-                activityCards.innerHTML = '<ul>' + moodTasks[matchedMood].suggestions.map((task, index) => `
+                // Use the raw user input for the header
+                activitiesHeader.innerHTML = `Recommendations for when you're feeling <strong>${moodInput}</strong>:`;
+
+                // Start with the base suggestions for the matched mood
+                let suggestions = [...moodTasks[matchedMood].suggestions];
+
+                // Add soundscape-specific recommendation if a soundscape is selected
+                if (currentSoundscape && moodTasks[matchedMood].soundscape[currentSoundscape]) {
+                    suggestions.push(moodTasks[matchedMood].soundscape[currentSoundscape]);
+                }
+
+                // Render the activity cards
+                activityCards.innerHTML = '<ul>' + suggestions.map((task, index) => `
                     <li onclick="toggleExplanation(${index})">
                         <div class="activity-item">
                             <i class="fas ${task.icon}"></i>
@@ -1245,6 +1439,9 @@
 
             affirmation.style.display = 'none'; // Hide affirmation on open
 
+            // Set the current soundscape when the popup opens
+            currentSoundscape = select.value;
+
             audio = new Audio(sounds[select.value]);
             audio.loop = true;
             audio.volume = volumeSlider.value;
@@ -1267,6 +1464,7 @@
 
             select.onchange = () => {
                 audio.pause();
+                currentSoundscape = select.value; // Update currentSoundscape on change
                 audio = new Audio(sounds[select.value]);
                 audio.loop = true;
                 audio.volume = volumeSlider.value;
@@ -1529,18 +1727,3 @@
 
         // Scroll effect for nav
         window.onscroll = () => {
-            const nav = document.getElementById('nav');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
-            }
-        };
-
-        // Enter key to submit mood
-        document.getElementById('mood-text').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') submitMood();
-        });
-    </script>
-</body>
-</html>
