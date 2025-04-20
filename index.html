@@ -280,6 +280,12 @@
         .tool-button.color:hover {
             background: linear-gradient(135deg, #48BB78, #38A169);
         }
+        .tool-button.grounding {
+            background: linear-gradient(135deg, #D2B48C, #8B4513);
+        }
+        .tool-button.grounding:hover {
+            background: linear-gradient(135deg, #C2A676, #7A3C12);
+        }
         #intro-content {
             flex: 1;
             text-align: center;
@@ -513,7 +519,7 @@
             cursor: pointer;
             transition: transform 0.15s;
         }
-        #stretch-prompt, #dance-prompt, #color-prompt {
+        #stretch-prompt, #dance-prompt, #color-prompt, #grounding-prompt {
             margin: 10px 0;
             font-size: 1em;
         }
@@ -677,6 +683,7 @@
             <button class="tool-button dance" data-tool="dance"><i class="fas fa-music"></i>Dance</button>
             <button class="tool-button worry" data-tool="worry"><i class="fas fa-cut"></i>Worry Shredder</button>
             <button class="tool-button color" data-tool="color"><i class="fas fa-palette"></i>Color Focus</button>
+            <button class="tool-button grounding" data-tool="grounding"><i class="fas fa-eye"></i>5-4-3-2-1 Grounding</button>
         </div>
         <div id="intro-content">
             <h2 class="section-heading">Why MoodTask?</h2>
@@ -853,6 +860,15 @@
             <button class="close-button" onclick="closePopup('color')"><i class="fas fa-times"></i></button>
         </div>
     </div>
+    <div id="grounding-popup" class="popup">
+        <div class="popup-content">
+            <h4>5-4-3-2-1 Grounding Technique</h4>
+            <p id="grounding-prompt">Step prompt will appear here...</p>
+            <button class="next-button" onclick="nextGroundingStep()"><i class="fas fa-arrow-right"></i> Next Step</button>
+            <p class="affirmation">You’ve completed the grounding technique. Feel more centered?</p>
+            <button class="close-button" onclick="closePopup('grounding')"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
 
     <script>
         // Levenshtein distance for fuzzy matching
@@ -978,7 +994,7 @@
                 {
                     title: '5-4-3-2-1 Grounding Technique',
                     icon: 'fa-eye',
-                    tool: null,
+                    tool: 'grounding',
                     explanation: 'Lisa Feldman Barrett’s insights on emotion suggest that shifting focus to sensory input can change emotional states. The 5-4-3-2-1 technique (naming 5 things you see, 4 you can touch, etc.) grounds you, reducing anxiety by engaging the prefrontal cortex.'
                 }
             ],
@@ -1132,601 +1148,64 @@
 
         // Submit mood and generate recommendations
         function submitMood() {
-            const moodText = document.getElementById('mood-text');
-            const activitiesSection = document.getElementById('activities-section');
-            const activitiesHeader = activitiesSection.querySelector('.activities-header');
-            const userMoodDisplay = activitiesSection.querySelector('.user-mood');
-            const activityCards = activitiesSection.querySelector('.activity-cards');
-            const toolsContainer = document.getElementById('tools-container');
+            try {
+                const moodText = document.getElementById('mood-text');
+                const activitiesSection = document.getElementById('activities-section');
+                const activitiesHeader = activitiesSection.querySelector('.activities-header');
+                const userMoodDisplay = activitiesSection.querySelector('.user-mood');
+                const activityCards = activitiesSection.querySelector('.activity-cards');
+                const toolsContainer = document.getElementById('tools-container');
 
-            let moodInput = moodText.value.trim();
-            if (!moodInput) {
-                // If no mood is entered, default to a generic mood (e.g., "happy")
-                moodInput = "happy";
-            }
-            const moodInputLower = moodInput.toLowerCase();
+                let moodInput = moodText.value.trim();
+                if (!moodInput) {
+                    moodInput = "happy";
+                }
+                const moodInputLower = moodInput.toLowerCase();
 
-            let matchedMood = Object.keys(moodTasks).find(mood => mood === moodInputLower);
-            if (!matchedMood) {
-                for (let mood in moodSynonyms) {
-                    if (moodSynonyms[mood].includes(moodInputLower)) {
-                        matchedMood = mood;
-                        break;
+                let matchedMood = Object.keys(moodTasks).find(mood => mood === moodInputLower);
+                if (!matchedMood) {
+                    for (let mood in moodSynonyms) {
+                        if (moodSynonyms[mood].includes(moodInputLower)) {
+                            matchedMood = mood;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!matchedMood) {
-                let minDistance = Infinity;
-                let closestMood = null;
-                for (let mood in moodTasks) {
-                    const distance = levenshtein(mood, moodInputLower);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestMood = mood;
-                    }
-                    for (let synonym of moodSynonyms[mood]) {
-                        const dist = levenshtein(synonym, moodInputLower);
-                        if (dist < minDistance) {
-                            minDistance = dist;
+                if (!matchedMood) {
+                    let minDistance = Infinity;
+                    let closestMood = null;
+                    for (let mood in moodTasks) {
+                        const distance = levenshtein(mood, moodInputLower);
+                        if (distance < minDistance) {
+                            minDistance = distance;
                             closestMood = mood;
                         }
-                    }
-                }
-                matchedMood = closestMood || "happy"; // Default to "happy" if no close match is found
-            }
-
-            // Display recommendations with the matched mood and show the user's input
-            activitiesHeader.textContent = `Recommendations for ${matchedMood.charAt(0).toUpperCase() + matchedMood.slice(1)} Mood:`;
-            userMoodDisplay.textContent = `You entered '${moodInput}'`;
-            activityCards.innerHTML = '<ul>' + moodTasks[matchedMood].map((task, index) => `
-                <li onclick="toggleExplanation(${index})">
-                    <div class="activity-item">
-                        <i class="fas ${task.icon}"></i>
-                        <span class="activity-title">${task.title}</span>
-                        ${task.tool ? `<button class="activity-button" onclick="event.stopPropagation(); openPopup('${task.tool}')"><i class="fas fa-play"></i> Try Now</button>` : ''}
-                    </div>
-                    <div class="explanation" id="explanation-${index}">${task.explanation}</div>
-                </li>
-            `).join('') + '</ul>';
-
-            activitiesSection.classList.add('show');
-            toolsContainer.style.display = 'grid';
-            moodText.value = '';
-
-            gtag('event', 'mood_submitted', { mood: matchedMood, user_input: moodInput });
-        }
-
-        // Toggle explanation visibility
-        function toggleExplanation(index) {
-            const explanation = document.getElementById(`explanation-${index}`);
-            explanation.classList.toggle('show');
-        }
-
-        // Open popup
-        function openPopup(tool) {
-            const popup = document.getElementById(`${tool}-popup`);
-            popup.style.display = 'flex';
-
-            if (tool === 'breathing') startBreathingExercise();
-            if (tool === 'gratitude') loadGratitudeHistory();
-            if (tool === 'soundscape') initSoundscape();
-            if (tool === 'punching') initPunchingBag();
-            if (tool === 'stretch') startStretch();
-            if (tool === 'doodle') initDoodle();
-            if (tool === 'dance') startDance();
-            if (tool === 'color') startColorFocus();
-
-            gtag('event', 'tool_opened', { tool: tool });
-        }
-
-        // Close popup
-        function closePopup(tool) {
-            const popup = document.getElementById(`${tool}-popup`);
-            popup.style.display = 'none';
-            if (tool === 'soundscape') {
-                pauseSoundscape();
-                document.querySelector('#soundscape-popup .affirmation').style.display = 'block';
-            }
-            if (tool === 'doodle') stopDoodle();
-        }
-
-        // Breathing exercise
-        function startBreathingExercise() {
-            const circle = document.getElementById('breathing-circle');
-            const stepText = document.getElementById('breathing-step');
-            const instruction = document.getElementById('breathing-instruction');
-            const timerText = document.getElementById('breathing-timer');
-            const progressBar = document.getElementById('breathing-progress');
-            let timeLeft = 60;
-            let phase = 'inhale';
-            let phaseTime = 0;
-
-            const phases = [
-                { name: 'inhale', duration: 4, text: 'Inhale', instruction: 'Breathe in deeply...' },
-                { name: 'hold', duration: 4, text: 'Hold', instruction: 'Hold your breath...' },
-                { name: 'exhale', duration: 6, text: 'Exhale', instruction: 'Exhale slowly...' }
-            ];
-
-            const breathingInterval = setInterval(() => {
-                phaseTime++;
-                const currentPhase = phases.find(p => p.name === phase);
-                if (phaseTime >= currentPhase.duration) {
-                    phaseTime = 0;
-                    const currentIndex = phases.findIndex(p => p.name === phase);
-                    phase = phases[(currentIndex + 1) % phases.length].name;
-                }
-
-                const phaseData = phases.find(p => p.name === phase);
-                circle.className = 'circle ' + phase;
-                stepText.textContent = phaseData.text;
-                instruction.textContent = phaseData.instruction;
-
-                timeLeft--;
-                timerText.textContent = `Time remaining: ${timeLeft}s`;
-                progressBar.style.width = `${(60 - timeLeft) / 60 * 100}%`;
-
-                if (timeLeft <= 0) {
-                    clearInterval(breathingInterval);
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    instruction.textContent = '';
-                    circle.style.display = 'none';
-                    document.querySelector('#breathing-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        // Gratitude Note with History
-        function clearGratitudeOnSunday() {
-            const today = new Date();
-            if (today.getDay() === 0) { // Sunday
-                localStorage.removeItem('gratitudeHistory');
-            }
-        }
-
-        function saveGratitude() {
-            const gratitudeText = document.getElementById('gratitude-text').value.trim();
-            if (!gratitudeText) return;
-
-            clearGratitudeOnSunday();
-
-            const now = new Date();
-            const timestamp = now.toLocaleString();
-            let history = JSON.parse(localStorage.getItem('gratitudeHistory')) || [];
-
-            // Add new gratitude note
-            history.push({ text: gratitudeText, timestamp });
-
-            // Filter notes within the last 7 days
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            history = history.filter(entry => new Date(entry.timestamp) >= sevenDaysAgo);
-
-            // Save to localStorage
-            localStorage.setItem('gratitudeHistory', JSON.stringify(history));
-
-            // Update display and show affirmation
-            loadGratitudeHistory();
-            document.getElementById('gratitude-text').value = '';
-            document.querySelector('#gratitude-popup .affirmation').style.display = 'block';
-        }
-
-        function loadGratitudeHistory() {
-            clearGratitudeOnSunday();
-
-            const historyDiv = document.getElementById('gratitude-history');
-            const history = JSON.parse(localStorage.getItem('gratitudeHistory')) || [];
-            
-            if (history.length === 0) {
-                historyDiv.innerHTML = '<p>No gratitude notes yet.</p>';
-                return;
-            }
-
-            historyDiv.innerHTML = '<h5>Past 7 Days:</h5>' + history.map(entry => `
-                <p><strong>${entry.timestamp}</strong>: ${entry.text}</p>
-            `).join('');
-        }
-
-        // Soundscape
-        let audio;
-        function initSoundscape() {
-            const select = document.getElementById('soundscape-select');
-            const playBtn = document.getElementById('play-btn');
-            const volumeSlider = document.getElementById('volume-slider');
-            const affirmation = document.querySelector('#soundscape-popup .affirmation');
-            const errorMessage = document.getElementById('soundscape-error');
-            const specificErrorMessage = document.getElementById('soundscape-specific-error');
-
-            const sounds = {
-                lightrain: 'Light Rain.mp3',
-                chinese: 'Chinese music.mp3',
-                forest: 'Spring Day Forest.mp3',
-                waves: 'Ocean Waves.mp3',
-                temple: 'In the Temple Garden - Aaron Kenny.mp3'
-            };
-
-            const soundNames = {
-                lightrain: 'Light Rain',
-                chinese: 'Chinese Music',
-                forest: 'Forest Sounds',
-                waves: 'Ocean Waves',
-                temple: 'Temple Garden'
-            };
-
-            const soundKeys = Object.keys(sounds);
-            // Track load status for each sound
-            const soundStatus = {};
-            soundKeys.forEach(key => {
-                soundStatus[key] = { loaded: false, attempted: false };
-            });
-
-            affirmation.style.display = 'none';
-            errorMessage.style.display = 'none';
-            specificErrorMessage.style.display = 'none';
-            playBtn.disabled = true;
-
-            // Update the dropdown to reflect load status
-            function updateSoundSelect() {
-                select.innerHTML = soundKeys.map(key => {
-                    const isLoaded = soundStatus[key].loaded;
-                    const label = soundStatus[key].attempted && !isLoaded ? `${soundNames[key]} [Unavailable]` : soundNames[key];
-                    return `<option value="${key}" ${isLoaded ? '' : 'disabled'}>${label}</option>`;
-                }).join('');
-                // Ensure a loaded sound is selected
-                const firstAvailable = soundKeys.find(key => soundStatus[key].loaded);
-                if (firstAvailable) {
-                    select.value = firstAvailable;
-                } else {
-                    select.disabled = true;
-                    playBtn.disabled = true;
-                    errorMessage.style.display = 'block';
-                }
-            }
-
-            // Test if an audio file can be loaded
-            function canLoadAudio(audioUrl) {
-                return new Promise((resolve) => {
-                    const testAudio = new Audio(audioUrl);
-                    testAudio.oncanplaythrough = () => resolve(true);
-                    testAudio.onerror = () => resolve(false);
-                    testAudio.load();
-                });
-            }
-
-            // Load an audio file
-            async function loadAudio(soundKey) {
-                if (audio) {
-                    audio.pause();
-                    audio = null;
-                }
-                const audioUrl = sounds[soundKey];
-                console.log(`Attempting to load audio: ${audioUrl}`);
-
-                // Skip if already attempted
-                if (soundStatus[soundKey].attempted) {
-                    if (soundStatus[soundKey].loaded) {
-                        audio = new Audio(audioUrl);
-                        audio.loop = true;
-                        audio.volume = volumeSlider.value;
-                        audio.oncanplaythrough = () => {
-                            console.log(`Audio ${audioUrl} loaded successfully.`);
-                            specificErrorMessage.style.display = 'none';
-                            playBtn.disabled = false;
-                            audio.play().catch(err => {
-                                console.error(`Playback error for ${audioUrl}:`, err);
-                                specificErrorMessage.textContent = `Error playing ${soundNames[soundKey]}. Please try again or select a different sound.`;
-                                specificErrorMessage.style.display = 'block';
-                            });
-                            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        };
-                    } else {
-                        specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
-                        specificErrorMessage.style.display = 'block';
-                        const nextAvailable = soundKeys.find(key => soundStatus[key].loaded);
-                        if (nextAvailable) {
-                            select.value = nextAvailable;
-                            loadAudio(nextAvailable);
+                        for (let synonym of moodSynonyms[mood]) {
+                            const dist = levenshtein(synonym, moodInputLower);
+                            if (dist < minDistance) {
+                                minDistance = dist;
+                                closestMood = mood;
+                            }
                         }
                     }
-                    return;
+                    matchedMood = closestMood || "happy";
                 }
 
-                soundStatus[soundKey].attempted = true;
-                const canLoad = await canLoadAudio(audioUrl);
-                soundStatus[soundKey].loaded = canLoad;
+                activitiesHeader.textContent = `Recommendations for ${matchedMood.charAt(0).toUpperCase() + matchedMood.slice(1)} Mood:`;
+                userMoodDisplay.textContent = `You entered '${moodInput}'`;
+                activityCards.innerHTML = '<ul>' + moodTasks[matchedMood].map((task, index) => `
+                    <li onclick="toggleExplanation(${index})">
+                        <div class="activity-item">
+                            <i class="fas ${task.icon}"></i>
+                            <span class="activity-title">${task.title}</span>
+                            ${task.tool ? `<button class="activity-button" onclick="event.stopPropagation(); openPopup('${task.tool}')"><i class="fas fa-play"></i> Try Now</button>` : ''}
+                        </div>
+                        <div class="explanation" id="explanation-${index}">${task.explanation}</div>
+                    </li>
+                `).join('') + '</ul>';
 
-                if (!canLoad) {
-                    console.error(`Cannot load audio file: ${audioUrl}`);
-                    specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
-                    specificErrorMessage.style.display = 'block';
-                    updateSoundSelect();
-                    const nextAvailable = soundKeys.find(key => soundStatus[key].loaded);
-                    if (nextAvailable) {
-                        select.value = nextAvailable;
-                        loadAudio(nextAvailable);
-                    }
-                    return false;
-                }
-
-                audio = new Audio(audioUrl);
-                audio.loop = true;
-                audio.volume = volumeSlider.value;
-
-                audio.onerror = (err) => {
-                    console.error(`Error loading audio file ${audioUrl}:`, err);
-                    console.log(`Audio error code: ${audio.error ? audio.error.code : 'Unknown'}`);
-                    console.log(`Audio error message: ${audio.error ? audio.error.message : 'Unknown error'}`);
-                    soundStatus[soundKey].loaded = false;
-                    specificErrorMessage.textContent = `Failed to load ${soundNames[soundKey]}. Please try another sound.`;
-                    specificErrorMessage.style.display = 'block';
-                    updateSoundSelect();
-                    const nextAvailable = soundKeys.find(key => soundStatus[key].loaded);
-                    if (nextAvailable) {
-                        select.value = nextAvailable;
-                        loadAudio(nextAvailable);
-                    }
-                };
-
-                audio.oncanplaythrough = () => {
-                    console.log(`Audio ${audioUrl} loaded successfully.`);
-                    soundStatus[soundKey].loaded = true;
-                    specificErrorMessage.style.display = 'none';
-                    playBtn.disabled = false;
-                    audio.play().catch(err => {
-                        console.error(`Playback error for ${audioUrl}:`, err);
-                        specificErrorMessage.textContent = `Error playing ${soundNames[soundKey]}. Please try again or select a different sound.`;
-                        specificErrorMessage.style.display = 'block';
-                    });
-                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                };
-
-                audio.onloadstart = () => {
-                    console.log(`Started loading audio: ${audioUrl}`);
-                };
-
-                updateSoundSelect();
-                return true;
-            }
-
-            // Preload all sounds to determine their status
-            async function preloadSounds() {
-                for (let key of soundKeys) {
-                    if (!soundStatus[key].attempted) {
-                        soundStatus[key].attempted = true;
-                        const canLoad = await canLoadAudio(sounds[key]);
-                        soundStatus[key].loaded = canLoad;
-                        if (!canLoad) {
-                            console.error(`Cannot load audio file: ${sounds[key]}`);
-                        }
-                    }
-                }
-                updateSoundSelect();
-            }
-
-            // Initialize by preloading all sounds, then load the first available one
-            preloadSounds().then(() => {
-                // Explicitly set the initial sound to "lightrain"
-                const initialSound = 'lightrain';
-                select.value = initialSound;
-                loadAudio(initialSound);
-            });
-
-            playBtn.onclick = () => {
-                if (!audio) return;
-                if (audio.paused) {
-                    audio.play().catch(err => {
-                        console.error('Playback error:', err);
-                        specificErrorMessage.textContent = `Error playing ${soundNames[select.value]}. Please try again.`;
-                        specificErrorMessage.style.display = 'block';
-                    });
-                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                } else {
-                    audio.pause();
-                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                }
-            };
-
-            volumeSlider.oninput = () => {
-                if (audio) audio.volume = volumeSlider.value;
-            };
-
-            select.onchange = () => {
-                specificErrorMessage.style.display = 'none';
-                loadAudio(select.value);
-            };
-        }
-
-        function pauseSoundscape() {
-            if (audio) {
-                audio.pause();
-                audio = null;
-            }
-        }
-
-        // Punching bag
-        function initPunchingBag() {
-            const bag = document.getElementById('punching-bag');
-            const timerText = document.getElementById('punching-timer');
-            const progressBar = document.getElementById('punching-progress');
-            let count = 0;
-            let timeLeft = 30;
-
-            bag.onclick = () => {
-                count++;
-                bag.textContent = count;
-                bag.style.transform = 'rotate(5deg)';
-                setTimeout(() => bag.style.transform = 'rotate(-5deg)', 150);
-            };
-
-            const punchingInterval = setInterval(() => {
-                timeLeft--;
-                timerText.textContent = `Time remaining: ${timeLeft}s`;
-                progressBar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
-
-                if (timeLeft <= 0) {
-                    clearInterval(punchingInterval);
-                    bag.onclick = null;
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    document.querySelector('#punching-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        // Stretch
-        let stretchIndex = 0;
-        const stretches = [
-            { prompt: 'Neck Stretch: Gently tilt your head to the right, bringing your ear toward your shoulder. Hold for 15 seconds, then switch to the left side.', duration: 15 },
-            { prompt: 'Shoulder Roll: Roll your shoulders forward in a circular motion 5 times, then backward 5 times.', duration: 0 },
-            { prompt: 'Seated Forward Bend: Sit with legs extended, reach forward toward your toes, and hold for 20 seconds.', duration: 20 },
-            { prompt: 'Chest Opener: Clasp your hands behind your back, lift your arms slightly, and hold for 15 seconds to open your chest.', duration: 15 },
-            { prompt: 'Side Stretch: Raise your right arm overhead, lean to the left, and hold for 15 seconds. Repeat on the other side.', duration: 15 }
-        ];
-
-        function startStretch() {
-            stretchIndex = 0;
-            updateStretch();
-        }
-
-        function updateStretch() {
-            const prompt = document.getElementById('stretch-prompt');
-            const nextButton = document.querySelector('#stretch-popup .next-button');
-            const affirmation = document.querySelector('#stretch-popup .affirmation');
-
-            if (stretchIndex < stretches.length) {
-                prompt.textContent = stretches[stretchIndex].prompt;
-                nextButton.disabled = false;
-                affirmation.style.display = 'none';
-            } else {
-                prompt.textContent = 'You’ve completed all stretches!';
-                nextButton.disabled = true;
-                affirmation.style.display = 'block';
-            }
-        }
-
-        function nextStretch() {
-            stretchIndex++;
-            updateStretch();
-        }
-
-        // Doodle
-        let canvas, ctx, drawing = false;
-        function initDoodle() {
-            canvas = document.getElementById('doodle-canvas');
-            ctx = canvas.getContext('2d');
-            const colorPicker = document.getElementById('color-picker');
-            const brushSize = document.getElementById('brush-size');
-            const timerText = document.getElementById('doodle-timer');
-            const progressBar = document.getElementById('doodle-progress');
-            let timeLeft = 90;
-
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-
-            canvas.onmousedown = (e) => {
-                drawing = true;
-                ctx.beginPath();
-                ctx.moveTo(e.offsetX, e.offsetY);
-            };
-            canvas.onmousemove = (e) => {
-                if (drawing) {
-                    ctx.strokeStyle = colorPicker.value;
-                    ctx.lineWidth = brushSize.value;
-                    ctx.lineTo(e.offsetX, e.offsetY);
-                    ctx.stroke();
-                }
-            };
-            canvas.onmouseup = () => drawing = false;
-            canvas.onmouseleave = () => drawing = false;
-
-            const doodleInterval = setInterval(() => {
-                timeLeft--;
-                timerText.textContent = `Time remaining: ${timeLeft}s`;
-                progressBar.style.width = `${(90 - timeLeft) / 90 * 100}%`;
-
-                if (timeLeft <= 0) {
-                    clearInterval(doodleInterval);
-                    canvas.onmousedown = null;
-                    canvas.onmousemove = null;
-                    canvas.onmouseup = null;
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    document.querySelector('#doodle-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        function saveDoodle() {
-            const link = document.createElement('a');
-            link.download = 'doodle.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        }
-
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function stopDoodle() {
-            drawing = false;
-            canvas.onmousedown = null;
-            canvas.onmousemove = null;
-            canvas.onmouseup = null;
-        }
-
-        // Dance
-        function startDance() {
-            const prompt = document.getElementById('dance-prompt');
-            const timerText = document.getElementById('dance-timer');
-            const progressBar = document.getElementById('dance-progress');
-            let timeLeft = 30;
-
-            const prompts = [
-                'Do a little twirl!',
-                'Move your hips side to side!',
-                'Raise your arms and sway!'
-            ];
-
-            let promptIndex = 0;
-            prompt.textContent = prompts[promptIndex];
-
-            const danceInterval = setInterval(() => {
-                timeLeft--;
-                timerText.textContent = `Time remaining: ${timeLeft}s`;
-                progressBar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
-
-                if (timeLeft % 10 === 0) {
-                    promptIndex = (promptIndex + 1) % prompts.length;
-                    prompt.textContent = prompts[promptIndex];
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(danceInterval);
-                    timerText.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    prompt.style.display = 'none';
-                    document.querySelector('#dance-popup .affirmation').style.display = 'block';
-                }
-            }, 1000);
-        }
-
-        // Worry Shredder
-        function shredWorry() {
-            const worryText = document.getElementById('worry-text');
-            const container = document.getElementById('paper-strips-container');
-            if (!worryText.value.trim()) return;
-
-            worryText.classList.add('shredding');
-            container.innerHTML = '';
-
-            const strips = 10;
-            for (let i = 0; i < strips; i++) {
-                const strip = document.createElement('div');
-                strip.style.position = 'absolute';
-                strip.style.width = '10px';
-                strip.style.height = '50px';
-                strip.style.background = '#ddd';
-                strip.style.left = `${(i * 10)}px`;
-                strip.style.animation = `shred 0.5s forwards ${i * 0.05}s`;
-                container.appendChild(strip);
+                // Explicitly set display and opacity to ensure visibility
+                activitiesSection.style.display = 'block';
+                activitiesSection.style.opacity = '1';
+                activitiesSection.classList.add
