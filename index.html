@@ -45,7 +45,7 @@
             z-index: 1000;
         }
         nav.scrolled {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .logo {
             font-size: 1.5em;
@@ -632,7 +632,7 @@
             <div id="instruction">Enter your current mood to receive tailored recommendations.</div>
             <div id="mood-input">
                 <input type="text" id="mood-text" placeholder="Enter your mood (e.g., tired, stressed, sad)">
-                <button id="submit-mood" onclick="submitMood()">Submit</button>
+                <button id="submit-mood">Submit</button>
             </div>
             <div id="activities-section">
                 <div class="activities-header"></div>
@@ -640,15 +640,15 @@
             </div>
         </div>
         <div class="tools-container" id="tools-container">
-            <button class="tool-button breathing" onclick="openPopup('breathing')"><i class="fas fa-wind"></i>Breathing Exercise</button>
-            <button class="tool-button gratitude" onclick="openPopup('gratitude')"><i class="fas fa-heart"></i>Gratitude Note</button>
-            <button class="tool-button soundscape" onclick="openPopup('soundscape')"><i class="fas fa-volume-up"></i>Soundscape</button>
-            <button class="tool-button punching" onclick="openPopup('punching')"><i class="fas fa-fist-raised"></i>Punching Bag</button>
-            <button class="tool-button stretch" onclick="openPopup('stretch')"><i class="fas fa-child"></i>Stretch</button>
-            <button class="tool-button doodle" onclick="openPopup('doodle')"><i class="fas fa-pencil-alt"></i>Doodle</button>
-            <button class="tool-button dance" onclick="openPopup('dance')"><i class="fas fa-music"></i>Dance</button>
-            <button class="tool-button worry" onclick="openPopup('worry')"><i class="fas fa-cut"></i>Worry Shredder</button>
-            <button class="tool-button color" onclick="openPopup('color')"><i class="fas fa-palette"></i>Color Focus</button>
+            <button class="tool-button breathing" data-tool="breathing"><i class="fas fa-wind"></i>Breathing Exercise</button>
+            <button class="tool-button gratitude" data-tool="gratitude"><i class="fas fa-heart"></i>Gratitude Note</button>
+            <button class="tool-button soundscape" data-tool="soundscape"><i class="fas fa-volume-up"></i>Soundscape</button>
+            <button class="tool-button punching" data-tool="punching"><i class="fas fa-fist-raised"></i>Punching Bag</button>
+            <button class="tool-button stretch" data-tool="stretch"><i class="fas fa-child"></i>Stretch</button>
+            <button class="tool-button doodle" data-tool="doodle"><i class="fas fa-pencil-alt"></i>Doodle</button>
+            <button class="tool-button dance" data-tool="dance"><i class="fas fa-music"></i>Dance</button>
+            <button class="tool-button worry" data-tool="worry"><i class="fas fa-cut"></i>Worry Shredder</button>
+            <button class="tool-button color" data-tool="color"><i class="fas fa-palette"></i>Color Focus</button>
         </div>
         <div id="intro-content">
             <h2 class="section-heading">Why MoodTask?</h2>
@@ -849,403 +849,255 @@
             return matrix[b.length][a.length];
         }
 
-        // Mood to task mappings with soundscape-specific recommendations
+        // Mood to task mappings
         const moodTasks = {
-            tired: {
-                suggestions: [
-                    {
-                        title: 'Optimize Sleep Environment',
-                        icon: 'fa-moon',
-                        tool: null,
-                        explanation: 'Sleep expert Matthew Walker emphasizes a cool (around 65°F), dark, and quiet bedroom to enhance sleep quality. Better sleep combats daytime fatigue by ensuring deeper restorative sleep stages, which are critical for energy restoration.'
-                    },
-                    {
-                        title: 'Diaphragmatic Breathing',
-                        icon: 'fa-wind',
-                        tool: 'breathing',
-                        explanation: 'Neuroscientist Andrew Huberman advocates for slow, diaphragmatic breathing to activate the parasympathetic nervous system. This reduces fatigue by lowering heart rate and increasing oxygen delivery to the brain, boosting alertness.'
-                    },
-                    {
-                        title: 'Gentle Movement for Energy',
-                        icon: 'fa-child',
-                        tool: 'stretch',
-                        explanation: 'Neuroscientist Lisa Feldman Barrett highlights that bodily movement can shift emotional states. A short stretch increases blood flow and endorphins, helping to counteract the low-energy state of tiredness by signaling alertness to the brain.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Walk Visualization',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'The forest sounds can help you visualize a peaceful walk through nature, grounding you and reducing fatigue by engaging your senses in a restorative way.'
-                    },
-                    rain: {
-                        title: 'Rainy Day Rest',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain sounds promote relaxation. Imagine resting by a window on a rainy day, allowing your mind to slow down and recover from tiredness.'
-                    },
-                    waves: {
-                        title: 'Ocean Breathing Sync',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can guide your breathing rhythm. Sync your inhales and exhales with the waves to calm your nervous system and boost energy.'
-                    }
+            tired: [
+                {
+                    title: 'Optimize Sleep Environment',
+                    icon: 'fa-moon',
+                    tool: null,
+                    explanation: 'Sleep expert Matthew Walker emphasizes a cool (around 65°F), dark, and quiet bedroom to enhance sleep quality. Better sleep combats daytime fatigue by ensuring deeper restorative sleep stages, which are critical for energy restoration.'
+                },
+                {
+                    title: 'Diaphragmatic Breathing',
+                    icon: 'fa-wind',
+                    tool: 'breathing',
+                    explanation: 'Neuroscientist Andrew Huberman advocates for slow, diaphragmatic breathing to activate the parasympathetic nervous system. This reduces fatigue by lowering heart rate and increasing oxygen delivery to the brain, boosting alertness.'
+                },
+                {
+                    title: 'Gentle Movement for Energy',
+                    icon: 'fa-child',
+                    tool: 'stretch',
+                    explanation: 'Neuroscientist Lisa Feldman Barrett highlights that bodily movement can shift emotional states. A short stretch increases blood flow and endorphins, helping to counteract the low-energy state of tiredness by signaling alertness to the brain.'
                 }
-            },
-            stressed: {
-                suggestions: [
-                    {
-                        title: 'Physiological Sigh',
-                        icon: 'fa-wind',
-                        tool: 'breathing',
-                        explanation: 'Andrew Huberman highlights the physiological sigh (two quick inhales through the nose, followed by a long exhale) as a rapid way to reduce stress. It balances oxygen and CO2 levels, calming the amygdala—the brain’s stress center—within seconds.'
-                    },
-                    {
-                        title: 'Mindfulness Meditation',
-                        icon: 'fa-spa',
-                        tool: 'breathing',
-                        explanation: 'Jon Kabat-Zinn, founder of Mindfulness-Based Stress Reduction (MBSR), recommends mindfulness meditation to reduce stress. Focusing on the breath helps detach from stress triggers, lowering cortisol levels and promoting a calm state.'
-                    },
-                    {
-                        title: 'Self-Compassion Break',
-                        icon: 'fa-heart',
-                        tool: 'gratitude',
-                        explanation: 'Psychologist Kristin Neff suggests practicing self-compassion during stress. Reflecting on self-kindness reduces self-criticism—a common stress amplifier—by fostering a sense of emotional safety and reducing anxiety.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Grounding',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can ground you in nature, reducing stress by engaging your senses and pulling you away from overthinking.'
-                    },
-                    rain: {
-                        title: 'Rain Meditation',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain fosters a meditative state. Let the sound wash away stress as you focus on the rhythm, calming your mind.'
-                    },
-                    waves: {
-                        title: 'Ocean Wave Reset',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can reset your stress response. Focus on the sound to slow your breathing and calm your nervous system.'
-                    }
+            ],
+            stressed: [
+                {
+                    title: 'Physiological Sigh',
+                    icon: 'fa-wind',
+                    tool: 'breathing',
+                    explanation: 'Andrew Huberman highlights the physiological sigh (two quick inhales through the nose, followed by a long exhale) as a rapid way to reduce stress. It balances oxygen and CO2 levels, calming the amygdala—the brain’s stress center—within seconds.'
+                },
+                {
+                    title: 'Mindfulness Meditation',
+                    icon: 'fa-spa',
+                    tool: 'breathing',
+                    explanation: 'Jon Kabat-Zinn, founder of Mindfulness-Based Stress Reduction (MBSR), recommends mindfulness meditation to reduce stress. Focusing on the breath helps detach from stress triggers, lowering cortisol levels and promoting a calm state.'
+                },
+                {
+                    title: 'Self-Compassion Break',
+                    icon: 'fa-heart',
+                    tool: 'gratitude',
+                    explanation: 'Psychologist Kristin Neff suggests practicing self-compassion during stress. Reflecting on self-kindness reduces self-criticism—a common stress amplifier—by fostering a sense of emotional safety and reducing anxiety.'
                 }
-            },
-            sad: {
-                suggestions: [
-                    {
-                        title: 'Self-Compassion Practice',
-                        icon: 'fa-heart',
-                        tool: 'gratitude',
-                        explanation: 'Kristin Neff, a pioneer in self-compassion research, recommends treating yourself with kindness during sadness. Writing a compassionate note to yourself can increase oxytocin, fostering emotional warmth and reducing feelings of isolation.'
-                    },
-                    {
-                        title: 'Reframe Through Movement',
-                        icon: 'fa-child',
-                        tool: 'dance',
-                        explanation: 'Lisa Feldman Barrett’s research on constructed emotion suggests that physical movement can shift emotional states. Light dancing changes your body’s posture and energy, signaling the brain to generate more positive emotional experiences.'
-                    },
-                    {
-                        title: 'Gratitude for Dopamine Boost',
-                        icon: 'fa-smile',
-                        tool: 'gratitude',
-                        explanation: 'Andrew Huberman discusses how gratitude practices can increase dopamine and serotonin levels in the brain. Reflecting on something you’re grateful for can counteract sadness by enhancing the brain’s reward system.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Emotional Healing',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can evoke a sense of peace, helping you process sadness by connecting with the calming presence of nature.'
-                    },
-                    rain: {
-                        title: 'Rainy Reflection',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain can create a safe space for emotional reflection, allowing you to sit with your sadness and gradually feel lighter.'
-                    },
-                    waves: {
-                        title: 'Ocean Emotional Flow',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can symbolize emotional flow. Let the sound guide you to release sadness and embrace a sense of renewal.'
-                    }
+            ],
+            sad: [
+                {
+                    title: 'Self-Compassion Practice',
+                    icon: 'fa-heart',
+                    tool: 'gratitude',
+                    explanation: 'Kristin Neff, a pioneer in self-compassion research, recommends treating yourself with kindness during sadness. Writing a compassionate note to yourself can increase oxytocin, fostering emotional warmth and reducing feelings of isolation.'
+                },
+                {
+                    title: 'Reframe Through Movement',
+                    icon: 'fa-child',
+                    tool: 'dance',
+                    explanation: 'Lisa Feldman Barrett’s research on constructed emotion suggests that physical movement can shift emotional states. Light dancing changes your body’s posture and energy, signaling the brain to generate more positive emotional experiences.'
+                },
+                {
+                    title: 'Gratitude for Dopamine Boost',
+                    icon: 'fa-smile',
+                    tool: 'gratitude',
+                    explanation: 'Andrew Huberman discusses how gratitude practices can increase dopamine and serotonin levels in the brain. Reflecting on something you’re grateful for can counteract sadness by enhancing the brain’s reward system.'
                 }
-            },
-            angry: {
-                suggestions: [
-                    {
-                        title: 'Physiological Sigh for Calm',
-                        icon: 'fa-wind',
-                        tool: 'breathing',
-                        explanation: 'Andrew Huberman recommends the physiological sigh to quickly downregulate anger. This breathing pattern reduces activation in the amygdala, the brain’s emotional center, helping you regain control and reduce aggressive impulses.'
-                    },
-                    {
-                        title: 'Mindful Observation of Anger',
-                        icon: 'fa-spa',
-                        tool: 'breathing',
-                        explanation: 'Jon Kabat-Zinn suggests observing anger without reacting, a core principle of mindfulness. By focusing on the physical sensations of anger (e.g., through breath), you create space to respond thoughtfully rather than impulsively.'
-                    },
-                    {
-                        title: 'Cognitive Reframing',
-                        icon: 'fa-brain',
-                        tool: null,
-                        explanation: 'Lisa Feldman Barrett’s work on emotional construction emphasizes reframing anger. Instead of labeling the feeling as anger, try to see it as energy or frustration, which can reduce its intensity by altering how your brain interprets the emotion.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Anger Release',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can help you release anger by grounding you in a peaceful environment, allowing the tension to dissipate naturally.'
-                    },
-                    rain: {
-                        title: 'Rain Emotional Cooling',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain can cool your emotional state, helping you let go of anger by focusing on the soothing rhythm of the sound.'
-                    },
-                    waves: {
-                        title: 'Ocean Wave Calming',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can calm your anger. Let the rhythmic sound guide your breathing and reduce the intensity of your emotions.'
-                    }
+            ],
+            angry: [
+                {
+                    title: 'Physiological Sigh for Calm',
+                    icon: 'fa-wind',
+                    tool: 'breathing',
+                    explanation: 'Andrew Huberman recommends the physiological sigh to quickly downregulate anger. This breathing pattern reduces activation in the amygdala, the brain’s emotional center, helping you regain control and reduce aggressive impulses.'
+                },
+                {
+                    title: 'Mindful Observation of Anger',
+                    icon: 'fa-spa',
+                    tool: 'breathing',
+                    explanation: 'Jon Kabat-Zinn suggests observing anger without reacting, a core principle of mindfulness. By focusing on the physical sensations of anger (e.g., through breath), you create space to respond thoughtfully rather than impulsively.'
+                },
+                {
+                    title: 'Cognitive Reframing',
+                    icon: 'fa-brain',
+                    tool: null,
+                    explanation: 'Lisa Feldman Barrett’s work on emotional construction emphasizes reframing anger. Instead of labeling the feeling as anger, try to see it as energy or frustration, which can reduce its intensity by altering how your brain interprets the emotion.'
                 }
-            },
-            anxious: {
-                suggestions: [
-                    {
-                        title: 'Body Scan Meditation',
-                        icon: 'fa-child',
-                        tool: 'stretch',
-                        explanation: 'Jon Kabat-Zinn, creator of MBSR, advocates for body scan meditation to reduce anxiety. By focusing on bodily sensations, you ground yourself in the present, reducing the overactivity of the brain’s fear circuits like the amygdala.'
-                    },
-                    {
-                        title: 'Self-Compassion for Anxiety',
-                        icon: 'fa-heart',
-                        tool: 'gratitude',
-                        explanation: 'Kristin Neff’s research shows that self-compassion can ease anxiety. Writing a kind note to yourself during anxious moments fosters a sense of safety, reducing self-judgment and calming the nervous system.'
-                    },
-                    {
-                        title: '5-4-3-2-1 Grounding Technique',
-                        icon: 'fa-eye',
-                        tool: null,
-                        explanation: 'Lisa Feldman Barrett’s insights on emotion suggest that shifting focus to sensory input can change emotional states. The 5-4-3-2-1 technique (naming 5 things you see, 4 you can touch, etc.) grounds you, reducing anxiety by engaging the prefrontal cortex.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Anxiety Grounding',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can ground you, reducing anxiety by immersing you in a natural, calming environment that distracts from racing thoughts.'
-                    },
-                    rain: {
-                        title: 'Rain Anxiety Soothe',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain can soothe anxiety. Focus on the steady sound to calm your mind and reduce overthinking.'
-                    },
-                    waves: {
-                        title: 'Ocean Wave Anxiety Release',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can help release anxiety. Let the rhythmic sound anchor your breathing and bring a sense of calm.'
-                    }
+            ],
+            anxious: [
+                {
+                    title: 'Body Scan Meditation',
+                    icon: 'fa-child',
+                    tool: 'stretch',
+                    explanation: 'Jon Kabat-Zinn, creator of MBSR, advocates for body scan meditation to reduce anxiety. By focusing on bodily sensations, you ground yourself in the present, reducing the overactivity of the brain’s fear circuits like the amygdala.'
+                },
+                {
+                    title: 'Self-Compassion for Anxiety',
+                    icon: 'fa-heart',
+                    tool: 'gratitude',
+                    explanation: 'Kristin Neff’s research shows that self-compassion can ease anxiety. Writing a kind note to yourself during anxious moments fosters a sense of safety, reducing self-judgment and calming the nervous system.'
+                },
+                {
+                    title: '5-4-3-2-1 Grounding Technique',
+                    icon: 'fa-eye',
+                    tool: null,
+                    explanation: 'Lisa Feldman Barrett’s insights on emotion suggest that shifting focus to sensory input can change emotional states. The 5-4-3-2-1 technique (naming 5 things you see, 4 you can touch, etc.) grounds you, reducing anxiety by engaging the prefrontal cortex.'
                 }
-            },
-            bored: {
-                suggestions: [
-                    {
-                        title: 'Creative Task',
-                        icon: 'fa-pencil-alt',
-                        tool: 'doodle',
-                        explanation: 'Psychologist Mihaly Csikszentmihalyi, known for his work on flow states, suggests that engaging in creative tasks like doodling can combat boredom. It stimulates the brain’s reward system, fostering a sense of engagement and fulfillment.'
-                    },
-                    {
-                        title: 'Novel Activity',
-                        icon: 'fa-puzzle-piece',
-                        tool: null,
-                        explanation: 'Neuroscientist David Eagleman highlights that novelty stimulates the brain’s dopamine pathways, counteracting boredom. Trying a new activity or puzzle engages your curiosity, making you feel more alert and interested.'
-                    },
-                    {
-                        title: 'Physical Movement',
-                        icon: 'fa-music',
-                        tool: 'dance',
-                        explanation: 'Kelly McGonigal, a health psychologist, notes that physical movement like dancing can shift your emotional state by releasing endorphins. This helps alleviate boredom by energizing your body and mind, making you feel more engaged.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Inspiration',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can inspire creativity, helping you overcome boredom by immersing you in a natural setting that sparks imagination.'
-                    },
-                    rain: {
-                        title: 'Rainy Day Imagination',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain can stimulate your imagination. Use the sound as a backdrop to daydream or think of new ideas to combat boredom.'
-                    },
-                    waves: {
-                        title: 'Ocean Wave Energy',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can energize you. Let the sound motivate you to get up and engage in a new activity to break the boredom.'
-                    }
+            ],
+            bored: [
+                {
+                    title: 'Creative Task',
+                    icon: 'fa-pencil-alt',
+                    tool: 'doodle',
+                    explanation: 'Psychologist Mihaly Csikszentmihalyi, known for his work on flow states, suggests that engaging in creative tasks like doodling can combat boredom. It stimulates the brain’s reward system, fostering a sense of engagement and fulfillment.'
+                },
+                {
+                    title: 'Novel Activity',
+                    icon: 'fa-puzzle-piece',
+                    tool: null,
+                    explanation: 'Neuroscientist David Eagleman highlights that novelty stimulates the brain’s dopamine pathways, counteracting boredom. Trying a new activity or puzzle engages your curiosity, making you feel more alert and interested.'
+                },
+                {
+                    title: 'Physical Movement',
+                    icon: 'fa-music',
+                    tool: 'dance',
+                    explanation: 'Kelly McGonigal, a health psychologist, notes that physical movement like dancing can shift your emotional state by releasing endorphins. This helps alleviate boredom by energizing your body and mind, making you feel more engaged.'
                 }
-            },
-            happy: {
-                suggestions: [
-                    {
-                        title: 'Savoring Exercise',
-                        icon: 'fa-heart',
-                        tool: 'gratitude',
-                        explanation: 'Positive psychology expert Barbara Fredrickson recommends savoring positive emotions to amplify happiness. Reflecting on a joyful moment can extend the emotional benefits by reinforcing neural pathways associated with positive affect.'
-                    },
-                    {
-                        title: 'Spread Positivity',
-                        icon: 'fa-smile',
-                        tool: null,
-                        explanation: 'Psychologist Sonja Lyubomirsky’s research shows that sharing positivity, like giving a compliment, can enhance your own happiness. It fosters social connection, which amplifies feelings of joy through oxytocin release.'
-                    },
-                    {
-                        title: 'Active Celebration',
-                        icon: 'fa-music',
-                        tool: 'dance',
-                        explanation: 'Kelly McGonigal highlights that movement, such as dancing, can amplify positive emotions. Celebrating happiness through dance reinforces the brain’s reward system, making the joyful state more vivid and memorable.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Joy Amplification',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can amplify your happiness by connecting you with nature, enhancing your joyful mood with a sense of peace.'
-                    },
-                    rain: {
-                        title: 'Rainy Day Celebration',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain can add a cozy vibe to your happiness. Celebrate your joy by relaxing with the sound of rain.'
-                    },
-                    waves: {
-                        title: 'Ocean Wave Happiness Flow',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can enhance your happiness. Let the sound flow with your joy, making the moment even more uplifting.'
-                    }
+            ],
+            happy: [
+                {
+                    title: 'Savoring Exercise',
+                    icon: 'fa-heart',
+                    tool: 'gratitude',
+                    explanation: 'Positive psychology expert Barbara Fredrickson recommends savoring positive emotions to amplify happiness. Reflecting on a joyful moment can extend the emotional benefits by reinforcing neural pathways associated with positive affect.'
+                },
+                {
+                    title: 'Spread Positivity',
+                    icon: 'fa-smile',
+                    tool: null,
+                    explanation: 'Psychologist Sonja Lyubomirsky’s research shows that sharing positivity, like giving a compliment, can enhance your own happiness. It fosters social connection, which amplifies feelings of joy through oxytocin release.'
+                },
+                {
+                    title: 'Active Celebration',
+                    icon: 'fa-music',
+                    tool: 'dance',
+                    explanation: 'Kelly McGonigal highlights that movement, such as dancing, can amplify positive emotions. Celebrating happiness through dance reinforces the brain’s reward system, making the joyful state more vivid and memorable.'
                 }
-            },
-            worried: {
-                suggestions: [
-                    {
-                        title: 'Worry Postponement',
-                        icon: 'fa-clock',
-                        tool: 'worry',
-                        explanation: 'Psychologist Thomas Borkovec, a pioneer in worry research, developed the worry postponement technique. By setting aside a specific ‘worry time,’ you reduce rumination, allowing your brain to focus on the present and decreasing anxiety.'
-                    },
-                    {
-                        title: 'Mindfulness Practice',
-                        icon: 'fa-spa',
-                        tool: 'breathing',
-                        explanation: 'Jon Kabat-Zinn’s mindfulness practices help manage worry by grounding you in the present moment. Focusing on your breath reduces activity in the brain’s default mode network, which is often responsible for excessive worrying.'
-                    },
-                    {
-                        title: 'Relaxation Imagery',
-                        icon: 'fa-image',
-                        tool: 'color',
-                        explanation: 'Neuroscientist Andrew Huberman notes that visualization can calm the nervous system. Focusing on a soothing color or image engages the parasympathetic nervous system, reducing worry by lowering physiological arousal.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Worry Grounding',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can ground you, helping to ease worry by immersing you in a natural, calming environment.'
-                    },
-                    rain: {
-                        title: 'Rain Worry Release',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain can help release worry. Let the sound wash away your concerns, bringing a sense of calm.'
-                    },
-                    waves: {
-                        title: 'Ocean Wave Worry Flow',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can help your worries flow away. Focus on the rhythmic sound to anchor yourself and reduce anxiety.'
-                    }
+            ],
+            worried: [
+                {
+                    title: 'Worry Postponement',
+                    icon: 'fa-clock',
+                    tool: 'worry',
+                    explanation: 'Psychologist Thomas Borkovec, a pioneer in worry research, developed the worry postponement technique. By setting aside a specific ‘worry time,’ you reduce rumination, allowing your brain to focus on the present and decreasing anxiety.'
+                },
+                {
+                    title: 'Mindfulness Practice',
+                    icon: 'fa-spa',
+                    tool: 'breathing',
+                    explanation: 'Jon Kabat-Zinn’s mindfulness practices help manage worry by grounding you in the present moment. Focusing on your breath reduces activity in the brain’s default mode network, which is often responsible for excessive worrying.'
+                },
+                {
+                    title: 'Relaxation Imagery',
+                    icon: 'fa-image',
+                    tool: 'color',
+                    explanation: 'Neuroscientist Andrew Huberman notes that visualization can calm the nervous system. Focusing on a soothing color or image engages the parasympathetic nervous system, reducing worry by lowering physiological arousal.'
                 }
-            },
-            overwhelmed: {
-                suggestions: [
-                    {
-                        title: 'Task Prioritization',
-                        icon: 'fa-list',
-                        tool: null,
-                        explanation: 'Psychologist David Allen, creator of the Getting Things Done method, suggests breaking tasks into manageable steps to reduce overwhelm. Prioritizing tasks helps declutter your mind, improving focus and reducing cognitive load.'
-                    },
-                    {
-                        title: 'Breathing Break',
-                        icon: 'fa-wind',
-                        tool: 'breathing',
-                        explanation: 'Andrew Huberman advocates for controlled breathing to manage overwhelm. A short breathing exercise activates the parasympathetic nervous system, lowering cortisol levels and helping you regain mental clarity.'
-                    },
-                    {
-                        title: 'Mindful Pause',
-                        icon: 'fa-palette',
-                        tool: 'color',
-                        explanation: 'Jon Kabat-Zinn’s mindfulness techniques emphasize pausing to reset. Focusing on a calming color grounds you in the present, reducing the mental clutter of overwhelm by engaging the brain’s sensory focus.'
-                    }
-                ],
-                soundscape: {
-                    nature: {
-                        title: 'Forest Clarity Break',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Forest sounds can provide a mental break, helping you regain clarity and reduce overwhelm by immersing you in nature.'
-                    },
-                    rain: {
-                        title: 'Rain Mental Reset',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Gentle rain can reset your mind. Let the sound clear away overwhelm, bringing a sense of calm and focus.'
-                    },
-                    waves: {
-                        title: 'Ocean Wave Mental Flow',
-                        icon: 'fa-volume-up',
-                        tool: 'soundscape',
-                        explanation: 'Ocean waves can help your thoughts flow more calmly, reducing overwhelm by anchoring you with their rhythm.'
-                    }
+            ],
+            overwhelmed: [
+                {
+                    title: 'Task Prioritization',
+                    icon: 'fa-list',
+                    tool: null,
+                    explanation: 'Psychologist David Allen, creator of the Getting Things Done method, suggests breaking tasks into manageable steps to reduce overwhelm. Prioritizing tasks helps declutter your mind, improving focus and reducing cognitive load.'
+                },
+                {
+                    title: 'Breathing Break',
+                    icon: 'fa-wind',
+                    tool: 'breathing',
+                    explanation: 'Andrew Huberman advocates for controlled breathing to manage overwhelm. A short breathing exercise activates the parasympathetic nervous system, lowering cortisol levels and helping you regain mental clarity.'
+                },
+                {
+                    title: 'Mindful Pause',
+                    icon: 'fa-palette',
+                    tool: 'color',
+                    explanation: 'Jon Kabat-Zinn’s mindfulness techniques emphasize pausing to reset. Focusing on a calming color grounds you in the present, reducing the mental clutter of overwhelm by engaging the brain’s sensory focus.'
                 }
-            }
+            ],
+            constipated: [
+                {
+                    title: 'Gentle Abdominal Stretch',
+                    icon: 'fa-child',
+                    tool: 'stretch',
+                    explanation: 'Physical therapist Dr. Kelly Starrett notes that gentle stretching can stimulate blood flow and relax abdominal muscles, potentially aiding digestion and relieving constipation discomfort. Stretching also reduces stress, which can contribute to gastrointestinal tension.'
+                },
+                {
+                    title: 'Deep Breathing for Relaxation',
+                    icon: 'fa-wind',
+                    tool: 'breathing',
+                    explanation: 'Neuroscientist Andrew Huberman highlights that deep breathing activates the parasympathetic nervous system, reducing stress and promoting relaxation in the gut. Stress can worsen constipation, so calming the nervous system may help.'
+                },
+                {
+                    title: 'Hydration Reminder',
+                    icon: 'fa-tint',
+                    tool: null,
+                    explanation: 'Gastroenterologist Dr. Anthony Lembo emphasizes that adequate hydration softens stool and supports bowel movements. Setting a reminder to drink water can address constipation directly while improving overall well-being.'
+                }
+            ]
         };
 
         // Synonyms for mood matching
         const moodSynonyms = {
-            tired: ['exhausted', 'fatigued', 'drained', 'weary', 'sleepy'],
-            stressed: ['overwhelmed', 'pressured', 'tense', 'anxious', 'nervous'],
-            sad: ['depressed', 'down', 'blue', 'unhappy', 'melancholy'],
-            angry: ['frustrated', 'irritated', 'mad', 'furious', 'annoyed'],
-            anxious: ['nervous', 'worried', 'uneasy', 'restless', 'tense'],
-            bored: ['uninterested', 'listless', 'idle', 'disengaged'],
-            happy: ['joyful', 'cheerful', 'content', 'pleased', 'delighted'],
-            worried: ['concerned', 'anxious', 'nervous', 'uneasy', 'apprehensive'],
-            overwhelmed: ['swamped', 'burdened', 'stressed', 'flooded']
+            tired: ['exhausted', 'fatigued', 'drained', 'weary', 'sleepy', 'worn-out', 'sluggish'],
+            stressed: ['overwhelmed', 'pressured', 'tense', 'anxious', 'nervous', 'frazzled', 'strung-out'],
+            sad: ['depressed', 'down', 'blue', 'unhappy', 'melancholy', 'gloomy', 'heartbroken'],
+            angry: ['frustrated', 'irritated', 'mad', 'furious', 'annoyed', 'enraged', 'livid'],
+            anxious: ['nervous', 'worried', 'uneasy', 'restless', 'tense', 'jittery', 'panicky'],
+            bored: ['uninterested', 'listless', 'idle', 'disengaged', 'apathetic', 'uninspired'],
+            happy: ['joyful', 'cheerful', 'content', 'pleased', 'delighted', 'ecstatic', 'overjoyed'],
+            worried: ['concerned', 'anxious', 'nervous', 'uneasy', 'apprehensive', 'fretful', 'alarmed'],
+            overwhelmed: ['swamped', 'burdened', 'stressed', 'flooded', 'inundated', 'snowed-under'],
+            constipated: ['blocked', 'backed-up']
         };
 
-        // Track the current soundscape selection
-        let currentSoundscape = null;
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const submitButton = document.getElementById('submit-mood');
+            const moodText = document.getElementById('mood-text');
+            if (submitButton) {
+                submitButton.addEventListener('click', submitMood);
+            }
+            if (moodText) {
+                moodText.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitMood();
+                    }
+                });
+            }
+
+            const toolButtons = document.querySelectorAll('.tool-button');
+            toolButtons.forEach(button => {
+                const tool = button.getAttribute('data-tool');
+                button.addEventListener('click', () => openPopup(tool));
+            });
+
+            const shareButton = document.getElementById('share');
+            if (shareButton) {
+                shareButton.addEventListener('click', () => {
+                    const url = encodeURIComponent(window.location.href);
+                    const text = encodeURIComponent('Check out MoodTask to transform your mood with science-backed activities! #MoodTask #MentalHealth');
+                    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+                });
+            }
+        });
 
         // Submit mood and generate recommendations
         function submitMood() {
@@ -1255,18 +1107,11 @@
             const activityCards = activitiesSection.querySelector('.activity-cards');
             const toolsContainer = document.getElementById('tools-container');
 
-            if (!moodText || !activitiesSection || !activitiesHeader || !activityCards || !toolsContainer) {
-                console.error('Required elements are missing');
-                return;
-            }
-
             let moodInput = moodText.value.trim().toLowerCase();
             if (!moodInput) {
                 alert('Please enter a mood.');
                 return;
             }
-
-            console.log('User input mood:', moodInput);
 
             let matchedMood = Object.keys(moodTasks).find(mood => mood === moodInput);
             if (!matchedMood) {
@@ -1301,20 +1146,8 @@
             }
 
             if (matchedMood && moodTasks[matchedMood]) {
-                console.log('Matched mood:', matchedMood);
-                // Use the raw user input for the header
-                activitiesHeader.innerHTML = `Recommendations for when you're feeling <strong>${moodInput}</strong>:`;
-
-                // Start with the base suggestions for the matched mood
-                let suggestions = [...moodTasks[matchedMood].suggestions];
-
-                // Add soundscape-specific recommendation if a soundscape is selected
-                if (currentSoundscape && moodTasks[matchedMood].soundscape[currentSoundscape]) {
-                    suggestions.push(moodTasks[matchedMood].soundscape[currentSoundscape]);
-                }
-
-                // Render the activity cards
-                activityCards.innerHTML = '<ul>' + suggestions.map((task, index) => `
+                activitiesHeader.textContent = `Recommendations for ${matchedMood.charAt(0).toUpperCase() + matchedMood.slice(1)} Mood:`;
+                activityCards.innerHTML = '<ul>' + moodTasks[matchedMood].map((task, index) => `
                     <li onclick="toggleExplanation(${index})">
                         <div class="activity-item">
                             <i class="fas ${task.icon}"></i>
@@ -1338,19 +1171,12 @@
         // Toggle explanation visibility
         function toggleExplanation(index) {
             const explanation = document.getElementById(`explanation-${index}`);
-            if (explanation) {
-                explanation.classList.toggle('show');
-            }
+            explanation.classList.toggle('show');
         }
 
         // Open popup
         function openPopup(tool) {
             const popup = document.getElementById(`${tool}-popup`);
-            if (!popup) {
-                console.error(`Popup for ${tool} not found`);
-                return;
-            }
-            console.log(`Opening popup: ${tool}`);
             popup.style.display = 'flex';
 
             if (tool === 'breathing') startBreathingExercise();
@@ -1367,14 +1193,12 @@
         // Close popup
         function closePopup(tool) {
             const popup = document.getElementById(`${tool}-popup`);
-            if (popup) {
-                popup.style.display = 'none';
-                if (tool === 'soundscape') {
-                    pauseSoundscape();
-                    document.querySelector('#soundscape-popup .affirmation').style.display = 'block';
-                }
-                if (tool === 'doodle') stopDoodle();
+            popup.style.display = 'none';
+            if (tool === 'soundscape') {
+                pauseSoundscape();
+                document.querySelector('#soundscape-popup .affirmation').style.display = 'block';
             }
+            if (tool === 'doodle') stopDoodle();
         }
 
         // Breathing exercise
@@ -1432,25 +1256,46 @@
             const affirmation = document.querySelector('#soundscape-popup .affirmation');
 
             const sounds = {
-                nature: 'https://raw.githubusercontent.com/AIFuture180/MoodTask-Beta/main/Audio/Day_Forest.mp3',
-                rain: 'https://raw.githubusercontent.com/AIFuture180/MoodTask-Beta/main/Audio/Light_Rain.mp3',
-                waves: 'https://raw.githubusercontent.com/AIFuture180/MoodTask-Beta/main/Audio/Waves_on_beach.mp3'
+                nature: 'https://cdn.pixabay.com/audio/2023/10/10/audio_1f7e8f6e6a.mp3', // Forest Sounds
+                rain: 'https://cdn.pixabay.com/audio/2023/10/10/audio_5b5f7e7e7b.mp3',   // Gentle Rain
+                waves: 'https://cdn.pixabay.com/audio/2023/10/10/audio_3f2e7e6e6c.mp3'   // Ocean Waves
             };
 
-            affirmation.style.display = 'none'; // Hide affirmation on open
+            affirmation.style.display = 'none';
 
-            // Set the current soundscape when the popup opens
-            currentSoundscape = select.value;
+            function loadAudio(soundKey) {
+                if (audio) {
+                    audio.pause();
+                    audio = null;
+                }
+                const audioUrl = sounds[soundKey];
+                audio = new Audio(audioUrl);
+                audio.loop = true;
+                audio.volume = volumeSlider.value;
 
-            audio = new Audio(sounds[select.value]);
-            audio.loop = true;
-            audio.volume = volumeSlider.value;
-            audio.play();
+                // Error handling for audio loading
+                audio.onerror = () => {
+                    alert(`Failed to load audio for ${select.options[select.selectedIndex].text}. Please check the audio URL or try a different sound. URL: ${audioUrl}`);
+                };
 
-            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                audio.oncanplaythrough = () => {
+                    audio.play().catch(err => {
+                        console.error('Playback error:', err);
+                        alert('Error playing the audio. Please try again or select a different sound.');
+                    });
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                };
+            }
+
+            // Load the initial sound
+            loadAudio(select.value);
+
             playBtn.onclick = () => {
                 if (audio.paused) {
-                    audio.play();
+                    audio.play().catch(err => {
+                        console.error('Playback error:', err);
+                        alert('Error playing the audio. Please try again.');
+                    });
                     playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 } else {
                     audio.pause();
@@ -1463,18 +1308,15 @@
             };
 
             select.onchange = () => {
-                audio.pause();
-                currentSoundscape = select.value; // Update currentSoundscape on change
-                audio = new Audio(sounds[select.value]);
-                audio.loop = true;
-                audio.volume = volumeSlider.value;
-                audio.play();
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                loadAudio(select.value);
             };
         }
 
         function pauseSoundscape() {
-            if (audio) audio.pause();
+            if (audio) {
+                audio.pause();
+                audio = null;
+            }
         }
 
         // Punching bag
@@ -1615,14 +1457,14 @@
             const progressBar = document.getElementById('dance-progress');
             let timeLeft = 30;
 
-            const danceMoves = [
-                'Do a little spin!',
-                'Wave your arms like you’re flying!',
-                'Hop side to side to the beat!'
+            const prompts = [
+                'Do a little twirl!',
+                'Move your hips side to side!',
+                'Raise your arms and sway!'
             ];
 
-            let moveIndex = 0;
-            prompt.textContent = danceMoves[moveIndex];
+            let promptIndex = 0;
+            prompt.textContent = prompts[promptIndex];
 
             const danceInterval = setInterval(() => {
                 timeLeft--;
@@ -1630,8 +1472,8 @@
                 progressBar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
 
                 if (timeLeft % 10 === 0) {
-                    moveIndex = (moveIndex + 1) % danceMoves.length;
-                    prompt.textContent = danceMoves[moveIndex];
+                    promptIndex = (promptIndex + 1) % prompts.length;
+                    prompt.textContent = prompts[promptIndex];
                 }
 
                 if (timeLeft <= 0) {
@@ -1647,28 +1489,30 @@
         // Worry Shredder
         function shredWorry() {
             const worryText = document.getElementById('worry-text');
-            const stripsContainer = document.getElementById('paper-strips-container');
+            const container = document.getElementById('paper-strips-container');
             if (!worryText.value.trim()) {
                 alert('Please write a worry to shred.');
                 return;
             }
 
             worryText.classList.add('shredding');
-            stripsContainer.innerHTML = '';
-            for (let i = 0; i < 5; i++) {
+            container.innerHTML = '';
+
+            for (let i = 0; i < 10; i++) {
                 const strip = document.createElement('div');
                 strip.style.position = 'absolute';
-                strip.style.width = '10px';
-                strip.style.height = '60px';
-                strip.style.background = '#fff';
-                strip.style.left = `${i * 15 + 20}px`;
-                strip.style.animation = `shred 0.5s forwards ${i * 0.1}s`;
-                stripsContainer.appendChild(strip);
+                strip.style.width = '5px';
+                strip.style.height = '50px';
+                strip.style.background = '#ddd';
+                strip.style.left = `${i * 10}%`;
+                strip.style.animation = `shred ${0.5 + i * 0.1}s forwards`;
+                container.appendChild(strip);
             }
 
             setTimeout(() => {
                 worryText.value = '';
                 worryText.classList.remove('shredding');
+                container.innerHTML = '';
                 document.querySelector('#worry-popup .affirmation').style.display = 'block';
             }, 1000);
         }
@@ -1681,7 +1525,7 @@
             const progressBar = document.getElementById('color-progress');
             let timeLeft = 60;
 
-            const colors = ['#FF6F61', '#6B7280', '#4A90E2', '#F4A261'];
+            const colors = ['#68D391', '#48BB78', '#38A169'];
             let colorIndex = 0;
             square.style.backgroundColor = colors[colorIndex];
             prompt.textContent = 'Focus on this color to calm your mind...';
@@ -1691,7 +1535,7 @@
                 timerText.textContent = `Time remaining: ${timeLeft}s`;
                 progressBar.style.width = `${(60 - timeLeft) / 60 * 100}%`;
 
-                if (timeLeft % 15 === 0) {
+                if (timeLeft % 20 === 0) {
                     colorIndex = (colorIndex + 1) % colors.length;
                     square.style.backgroundColor = colors[colorIndex];
                 }
@@ -1707,7 +1551,7 @@
             }, 1000);
         }
 
-        // Save Gratitude
+        // Save gratitude note
         function saveGratitude() {
             const gratitudeText = document.getElementById('gratitude-text');
             if (!gratitudeText.value.trim()) {
@@ -1717,13 +1561,6 @@
             gratitudeText.value = '';
             document.querySelector('#gratitude-popup .affirmation').style.display = 'block';
         }
-
-        // Share on X
-        document.getElementById('share').onclick = () => {
-            const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Check out MoodTask to transform your mood with science-backed activities! #MoodTask #MentalHealth');
-            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-        };
-
-        // Scroll effect for nav
-        window.onscroll = () => {
+    </script>
+</body>
+</html>
