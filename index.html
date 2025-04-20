@@ -280,12 +280,6 @@
         .tool-button.color:hover {
             background: linear-gradient(135deg, #48BB78, #38A169);
         }
-        .tool-button.grounding {
-            background: linear-gradient(135deg, #D2B48C, #8B4513);
-        }
-        .tool-button.grounding:hover {
-            background: linear-gradient(135deg, #C2A676, #7A3C12);
-        }
         #intro-content {
             flex: 1;
             text-align: center;
@@ -519,7 +513,7 @@
             cursor: pointer;
             transition: transform 0.15s;
         }
-        #stretch-prompt, #dance-prompt, #color-prompt, #grounding-prompt {
+        #stretch-prompt, #dance-prompt, #color-prompt {
             margin: 10px 0;
             font-size: 1em;
         }
@@ -683,7 +677,6 @@
             <button class="tool-button dance" data-tool="dance"><i class="fas fa-music"></i>Dance</button>
             <button class="tool-button worry" data-tool="worry"><i class="fas fa-cut"></i>Worry Shredder</button>
             <button class="tool-button color" data-tool="color"><i class="fas fa-palette"></i>Color Focus</button>
-            <button class="tool-button grounding" data-tool="grounding"><i class="fas fa-eye"></i>5-4-3-2-1 Grounding</button>
         </div>
         <div id="intro-content">
             <h2 class="section-heading">Why MoodTask?</h2>
@@ -860,15 +853,6 @@
             <button class="close-button" onclick="closePopup('color')"><i class="fas fa-times"></i></button>
         </div>
     </div>
-    <div id="grounding-popup" class="popup">
-        <div class="popup-content">
-            <h4>5-4-3-2-1 Grounding Technique</h4>
-            <p id="grounding-prompt">Step prompt will appear here...</p>
-            <button class="next-button" onclick="nextGroundingStep()"><i class="fas fa-arrow-right"></i> Next Step</button>
-            <p class="affirmation">You’ve completed the grounding technique. Feel more centered?</p>
-            <button class="close-button" onclick="closePopup('grounding')"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
 
     <script>
         // Levenshtein distance for fuzzy matching
@@ -994,7 +978,7 @@
                 {
                     title: '5-4-3-2-1 Grounding Technique',
                     icon: 'fa-eye',
-                    tool: 'grounding',
+                    tool: null,
                     explanation: 'Lisa Feldman Barrett’s insights on emotion suggest that shifting focus to sensory input can change emotional states. The 5-4-3-2-1 technique (naming 5 things you see, 4 you can touch, etc.) grounds you, reducing anxiety by engaging the prefrontal cortex.'
                 }
             ],
@@ -1156,6 +1140,10 @@
                 const activityCards = activitiesSection.querySelector('.activity-cards');
                 const toolsContainer = document.getElementById('tools-container');
 
+                if (!moodText || !activitiesSection || !activitiesHeader || !userMoodDisplay || !activityCards || !toolsContainer) {
+                    throw new Error('One or more required DOM elements are missing.');
+                }
+
                 let moodInput = moodText.value.trim();
                 if (!moodInput) {
                     moodInput = "happy";
@@ -1205,7 +1193,74 @@
                     </li>
                 `).join('') + '</ul>';
 
-                // Explicitly set display and opacity to ensure visibility
-                activitiesSection.style.display = 'block';
-                activitiesSection.style.opacity = '1';
-                activitiesSection.classList.add
+                activitiesSection.classList.add('show');
+                toolsContainer.style.display = 'grid';
+                moodText.value = '';
+
+                gtag('event', 'mood_submitted', { mood: matchedMood, user_input: moodInput });
+            } catch (error) {
+                console.error('Error in submitMood:', error);
+                alert('An error occurred while processing your mood. Please try again.');
+            }
+        }
+
+        function toggleExplanation(index) {
+            const explanation = document.getElementById(`explanation-${index}`);
+            if (explanation.classList.contains('show')) {
+                explanation.classList.remove('show');
+            } else {
+                const allExplanations = document.querySelectorAll('.explanation');
+                allExplanations.forEach(exp => exp.classList.remove('show'));
+                explanation.classList.add('show');
+            }
+        }
+
+        function openPopup(tool) {
+            closeAllPopups();
+            const popup = document.getElementById(`${tool}-popup`);
+            if (popup) {
+                popup.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                if (tool === 'breathing') startBreathing();
+                if (tool === 'soundscape') setupSoundscape();
+                if (tool === 'punching') startPunching();
+                if (tool === 'stretch') startStretch();
+                if (tool === 'doodle') setupDoodle();
+                if (tool === 'dance') startDance();
+                if (tool === 'color') startColorFocus();
+            } else {
+                console.error(`Popup for tool '${tool}' not found.`);
+            }
+        }
+
+        function closePopup(tool) {
+            const popup = document.getElementById(`${tool}-popup`);
+            if (popup) {
+                popup.style.display = 'none';
+                document.body.style.overflow = 'auto';
+
+                if (tool === 'breathing') stopBreathing();
+                if (tool === 'soundscape') stopSoundscape();
+                if (tool === 'punching') stopPunching();
+                if (tool === 'doodle') stopDoodle();
+                if (tool === 'dance') stopDance();
+            }
+        }
+
+        function closeAllPopups() {
+            const popups = document.querySelectorAll('.popup');
+            popups.forEach(popup => {
+                const tool = popup.id.replace('-popup', '');
+                closePopup(tool);
+            });
+        }
+
+        // Breathing Exercise
+        let breathingInterval;
+        function startBreathing() {
+            const circle = document.getElementById('breathing-circle');
+            const stepText = document.getElementById('breathing-step');
+            const instruction = document.getElementById('breathing-instruction');
+            const progressBar = document.getElementById('breathing-progress');
+            const timerText = document.getElementById('breathing-timer');
